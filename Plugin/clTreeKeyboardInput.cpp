@@ -305,7 +305,9 @@ void clTreeKeyboardInput::SimulateKeyDown(const wxKeyEvent& event)
 {
     // must be called after SetTextFocus() function to ensure that the simulation is running
     // on the input text control
+#ifndef __WXGTK__    
     wxUIActionSimulator sim;
     sim.KeyDown(event.GetKeyCode(), event.GetModifiers());
     wxYield();
+#endif
 }

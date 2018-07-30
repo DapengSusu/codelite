@@ -2047,6 +2047,7 @@ void wxPGPropertyBooleanUseCheckbox(wxPropertyGrid* grid)
 
 void clRecalculateSTCHScrollBar(wxStyledTextCtrl* ctrl)
 {
+#ifndef __WXGTK__
     // recalculate and set the length of horizontal scrollbar
     int maxPixel = 0;
     int startLine = ctrl->GetFirstVisibleLine();
@@ -2074,7 +2075,9 @@ void clRecalculateSTCHScrollBar(wxStyledTextCtrl* ctrl)
         // And if it is not the same, update it
         ctrl->SetScrollWidth(maxPixel);
     }
+#endif
 }
+
 wxString clGetTextFromUser(const wxString& title, const wxString& message, const wxString& initialValue,
                            int charsToSelect, wxWindow* parent)
 {
