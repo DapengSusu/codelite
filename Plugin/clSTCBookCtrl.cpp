@@ -20,10 +20,19 @@ clSTCBookCtrl::clSTCBookCtrl(wxWindow* parent)
     m_stc->SetClientData(nullptr);
 }
 
-clSTCBookCtrl::~clSTCBookCtrl() {}
-
-void clSTCBookCtrl::AddPage(clSTCEventsHandler* handler, const wxString& label, bool selected, const wxBitmap& bmp)
+clSTCBookCtrl::~clSTCBookCtrl() 
 {
+    std::for_each(m_handlersVec.begin(), m_handlersVec.end(), [&](clSTCEventsHandler* handler){
+        wxDELETE(handler);
+    });
+    m_handlersVec.clear();
+    m_handlersMap.clear();
+}
+
+void clSTCBookCtrl::AddPage(clSTCEventsHandler* handler, const wxFileName& filename, const wxString& label,
+                            bool selected, const wxBitmap& bmp)
+{
+    handler->SetFilename(filename);
     if(m_handlersMap.count(handler->GetFilename().GetFullPath()) == 0) {
         // a new file, add it
         m_handlersMap.insert({ handler->GetFilename().GetFullPath(), handler });
@@ -53,6 +62,7 @@ void clSTCBookCtrl::ChangeSelection(clSTCEventsHandler* newHandler)
     // 3. Bind wxSTC events to the new handler
     // 4. Attaches the new handler to the wxSTC
     newHandler->SelectIntoEditor();
+    m_stc->CallAfter(&wxStyledTextCtrl::SetFocus);
 }
 
 void clSTCBookCtrl::SetSelection(size_t index) { SetSelection(GetHandler(index)); }
@@ -62,7 +72,7 @@ clSTCEventsHandler* clSTCBookCtrl::GetHandler(int index)
     if(index == wxNOT_FOUND) {
         return GetActiveHandler();
     }
-    if(index >= m_handlersVec.size() || index < 0) {
+    if((index >= (int)m_handlersVec.size()) || index < 0) {
         return nullptr;
     }
     return m_handlersVec[index];

@@ -38,18 +38,21 @@ public:
     clSTCBookCtrl(wxWindow* parent);
     virtual ~clSTCBookCtrl();
 
+    wxStyledTextCtrl* GetCtrl() { return m_stc; }
+
     /**
      * @brief add new file (represented by handler class) to the notebook
      * if selected is 'true', this methods internall calls SetSelection
      * which fires the book changing/changed events
      */
-    void AddPage(clSTCEventsHandler* handler, const wxString& label, bool selected, const wxBitmap& bmp);
+    void AddPage(clSTCEventsHandler* handler, const wxFileName& filename, const wxString& label, bool selected = true,
+                 const wxBitmap& bmp = wxNullBitmap);
 
     /**
      * @brief change the selection. This functions send the events wxEVT_BOOK_PAGE_CHANGING and wxEVT_BOOK_PAGE_CHANGED
      */
     void SetSelection(size_t index);
-    
+
     /**
      * @brief return the current selection
      */
