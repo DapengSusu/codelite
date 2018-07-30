@@ -136,7 +136,7 @@ int StopReasonToPriority(const lldb::StopReason stopReason)
         return 1000;
     case lldb::eStopReasonThreadExiting:
         break;
-#ifndef __WXOSX__
+#if !defined(__WXOSX__) && HAS_LLDB_ENUM_STOP_INST
     case lldb::eStopReasonInstrumentation:
         return 300;
 #endif

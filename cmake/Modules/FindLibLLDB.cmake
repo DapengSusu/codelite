@@ -61,6 +61,18 @@ if (UNIX)
             set(LIBLLDB ${LIBLLDB_T})
             set(LIBLLDB_INCLUDE ${LIBLLDB_INCLUDE_T})
             set( LLDB_OFFICIAL_FOUND 1 )
+            ## Check to see if we have a recent version of clang to include clang_getBriefComment
+            execute_process(COMMAND /bin/grep eStopReasonInstrumentation ${LIBLLDB_INCLUDE_T}/lldb/lldb-enumerations.h 
+                            OUTPUT_VARIABLE STOP_INST_OUTPUT 
+                            OUTPUT_STRIP_TRAILING_WHITESPACE)
+            message("-- Found libLLDB result: ${STOP_INST_OUTPUT}")
+            if (STOP_INST_OUTPUT STREQUAL "")
+                message("-- Could not find enumerator eStopReasonInstrumentation, disabling it")
+                add_definitions(-DHAS_LLDB_ENUM_STOP_INST=0)
+            else()
+                add_definitions(-DHAS_LLDB_ENUM_STOP_INST=1)
+                message("-- Found enumerator eStopReasonInstrumentation")
+            endif()
         endif()
     endmacro()
 endif()
