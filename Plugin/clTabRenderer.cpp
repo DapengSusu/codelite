@@ -219,7 +219,7 @@ void clTabInfo::SetActive(bool active, size_t style)
     CalculateOffsets(style);
 }
 
-bool clTabInfo::Equals(clTabInfo::Ptr_t other) const { return m_id == other->m_id; }
+bool clTabInfo::Equals(clTabInfo::Ptr_t other) const { return (m_ptr == other->m_ptr) && m_ptr; }
 
 clTabRenderer::clTabRenderer()
     : bottomAreaHeight(0)
