@@ -288,6 +288,7 @@ OSX_MAKE_BUNDLE_DIRECTORY()
 
 add_definitions(-DYY_NEVER_INTERACTIVE=1)
 add_definitions(-DwxUSE_GUI=1)
+add_definitions(-DCL_BUILD=1)
 set ( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11" )
 
 if (NOT MINGW)

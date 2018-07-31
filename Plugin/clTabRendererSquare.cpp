@@ -1,7 +1,8 @@
 #include "clTabRendererSquare.h"
-#if !USE_AUI_NOTEBOOK
 #include "drawingutils.h"
+#if CL_BUILD
 #include "editor_config.h"
+#endif
 #include <wx/dcmemory.h>
 #include <wx/font.h>
 #include <wx/settings.h>
@@ -24,7 +25,9 @@ clTabRendererSquare::clTabRendererSquare()
     overlapWidth = 2;
     verticalOverlapWidth = 2;
     xSpacer = 15;
+#if CL_BUILD
     ySpacer = EditorConfigST::Get()->GetOptions()->GetNotebookTabHeight();
+#endif
 }
 
 clTabRendererSquare::~clTabRendererSquare() {}
@@ -174,4 +177,4 @@ void clTabRendererSquare::DrawBottomRect(wxWindow* parent, clTabInfo::Ptr_t acti
     }
     ClearActiveTabExtraLine(activeTab, dc, colours, style);
 }
-#endif
+

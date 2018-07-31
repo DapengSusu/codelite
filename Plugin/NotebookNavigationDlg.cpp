@@ -45,7 +45,7 @@ NotebookNavigationDlg::NotebookNavigationDlg(wxWindow* parent, clMultiBook* book
     }
 
     clTabHistory::Ptr_t history = m_book->GetHistory();
-    const std::vector<wxWindow*>& windows = history->GetHistory();
+    const std::vector<void*>& windows = history->GetHistory();
     // Populate the list
     for(size_t i = 0; i < windows.size(); ++i) {
         int index = m_book->GetPageIndex(windows[i]);

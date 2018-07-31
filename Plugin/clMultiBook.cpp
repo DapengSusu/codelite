@@ -326,11 +326,11 @@ void clMultiBook::SetStyle(size_t style)
 
 size_t clMultiBook::GetStyle() const { return m_style; }
 
-int clMultiBook::GetPageIndex(wxWindow* window) const
+int clMultiBook::GetPageIndex(void* window) const
 {
     std::vector<Notebook*> books = { m_leftBook, m_rightBook };
     for(size_t i = 0; i < books.size(); ++i) {
-        int index = books[i]->GetPageIndex(window);
+        int index = books[i]->GetPageIndex((wxWindow*)window);
         if(index != wxNOT_FOUND) { return BookIndexToGlobalIndex(i, index); }
     }
     return wxNOT_FOUND;

@@ -1,58 +1,35 @@
 #include "clSTCBookCtrl.h"
 #include "clSTCEventsHandler.h"
+#include "clSTCTabCtrl.h"
+#include "clTabRenderer.h"
 #include <wx/sizer.h>
 
-wxDEFINE_EVENT(wxEVT_STC_BOOK_PAGE_CHANGING, wxBookCtrlEvent);
-wxDEFINE_EVENT(wxEVT_STC_BOOK_PAGE_CHANGED, wxBookCtrlEvent);
-wxDEFINE_EVENT(wxEVT_STC_BOOK_PAGE_CLOSING, wxBookCtrlEvent);
-wxDEFINE_EVENT(wxEVT_STC_BOOK_PAGE_CLOSED, wxBookCtrlEvent);
-wxDEFINE_EVENT(wxEVT_STC_BOOK_PAGE_CLOSE_BUTTON, wxBookCtrlEvent);
-wxDEFINE_EVENT(wxEVT_STC_BOOK_TAB_DCLICKED, wxBookCtrlEvent);
-wxDEFINE_EVENT(wxEVT_STC_BOOK_TABAREA_DCLICKED, wxBookCtrlEvent);
-wxDEFINE_EVENT(wxEVT_STC_BOOK_TAB_CONTEXT_MENU, wxBookCtrlEvent);
 
 clSTCBookCtrl::clSTCBookCtrl(wxWindow* parent)
     : wxPanel(parent, wxID_ANY)
 {
+    m_tabCtrl = new clSTCTabCtrl(this, kNotebook_Default | kNotebook_AllowDnD);
+
     SetSizer(new wxBoxSizer(wxVERTICAL));
+
     m_stc = new wxStyledTextCtrl(this, wxID_ANY);
+    GetSizer()->Add(m_tabCtrl, 0, wxEXPAND);
     GetSizer()->Add(m_stc, 1, wxEXPAND);
     m_stc->SetClientData(nullptr);
 }
 
-clSTCBookCtrl::~clSTCBookCtrl() 
-{
-    std::for_each(m_handlersVec.begin(), m_handlersVec.end(), [&](clSTCEventsHandler* handler){
-        wxDELETE(handler);
-    });
-    m_handlersVec.clear();
-    m_handlersMap.clear();
-}
+clSTCBookCtrl::~clSTCBookCtrl() { m_tabCtrl->DeleteAllPages(); }
 
 void clSTCBookCtrl::AddPage(clSTCEventsHandler* handler, const wxFileName& filename, const wxString& label,
                             bool selected, const wxBitmap& bmp)
 {
     handler->SetFilename(filename);
-    if(m_handlersMap.count(handler->GetFilename().GetFullPath()) == 0) {
-        // a new file, add it
-        m_handlersMap.insert({ handler->GetFilename().GetFullPath(), handler });
-        m_handlersVec.push_back(handler);
-    }
-
+    m_tabCtrl->AddPage(clTabInfo::Ptr_t(new clTabInfo(m_tabCtrl, m_tabCtrl->GetStyle(), (void*)handler, label, bmp)));
     if(selected) {
-        SetSelection(handler);
+        SetSelection(m_tabCtrl->GetPageCount() - 1);
     }
 }
 
-clSTCEventsHandler* clSTCBookCtrl::GetActiveHandler() const
-{
-    if(!m_stc->GetClientData()) {
-        return nullptr;
-    }
-
-    clSTCEventsHandler* handler = reinterpret_cast<clSTCEventsHandler*>(m_stc->GetClientData());
-    return handler;
-}
 
 void clSTCBookCtrl::ChangeSelection(clSTCEventsHandler* newHandler)
 {
@@ -65,58 +42,26 @@ void clSTCBookCtrl::ChangeSelection(clSTCEventsHandler* newHandler)
     m_stc->CallAfter(&wxStyledTextCtrl::SetFocus);
 }
 
-void clSTCBookCtrl::SetSelection(size_t index) { SetSelection(GetHandler(index)); }
+void clSTCBookCtrl::SetSelection(size_t index)
+{
+    clSTCEventsHandler* handler = GetHandler(index);
+    if(!handler) return;
+    if(m_tabCtrl->SetSelection(index)) {
+        ChangeSelection(handler);
+    }
+}
 
-clSTCEventsHandler* clSTCBookCtrl::GetHandler(int index)
+clSTCEventsHandler* clSTCBookCtrl::GetHandler(int index) const
 {
     if(index == wxNOT_FOUND) {
-        return GetActiveHandler();
+        index = m_tabCtrl->GetSelection();
     }
-    if((index >= (int)m_handlersVec.size()) || index < 0) {
+    clTabInfo::Ptr_t tab = m_tabCtrl->GetTabInfo(index);
+    if(!tab) {
         return nullptr;
     }
-    return m_handlersVec[index];
+    return tab->GetPtrAs<clSTCEventsHandler>();
 }
+clSTCEventsHandler* clSTCBookCtrl::GetActiveHandler() const { return GetHandler(wxNOT_FOUND); }
 
-void clSTCBookCtrl::SetSelection(clSTCEventsHandler* handler)
-{
-    if(!handler) {
-        return;
-    }
-
-    int oldSelection = GetSelection();
-    if(oldSelection != wxNOT_FOUND) {
-        wxBookCtrlEvent changingEvent(wxEVT_STC_BOOK_PAGE_CHANGING);
-        changingEvent.SetEventObject(this);
-        changingEvent.SetSelection(oldSelection);
-        changingEvent.SetOldSelection(wxNOT_FOUND);
-        GetEventHandler()->ProcessEvent(changingEvent);
-        if(!changingEvent.IsAllowed()) {
-            return; // Vetoed by the user
-        }
-    }
-
-    ChangeSelection(handler);
-
-    {
-        wxBookCtrlEvent changedEvent(wxEVT_STC_BOOK_PAGE_CHANGED);
-        changedEvent.SetEventObject(this);
-        changedEvent.SetSelection(GetSelection());
-        changedEvent.SetOldSelection(oldSelection);
-        GetEventHandler()->AddPendingEvent(changedEvent);
-    }
-}
-
-int clSTCBookCtrl::GetSelection() const
-{
-    clSTCEventsHandler* handler = GetActiveHandler();
-    if(!handler) {
-        return wxNOT_FOUND;
-    }
-    for(size_t i = 0; i < m_handlersVec.size(); ++i) {
-        if(m_handlersVec[i] == handler) {
-            return (int)i;
-        }
-    }
-    return wxNOT_FOUND;
-}
+int clSTCBookCtrl::GetSelection() const { return m_tabCtrl->GetSelection(); }

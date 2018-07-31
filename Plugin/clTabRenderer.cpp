@@ -1,19 +1,19 @@
 #include "cl_defs.h"
-#include "cl_config.h"
 
-#if !USE_AUI_NOTEBOOK
+#if CL_BUILD
 #include "Notebook.h"
+#include "cl_config.h"
+#include "editor_config.h"
+#endif
+
+#include "clTabCtrl.h"
 #include "clTabRenderer.h"
 #include "clTabRendererSquare.h"
-#include "editor_config.h"
+#include "drawingutils.h"
 #include <wx/dcmemory.h>
 #include <wx/renderer.h>
 #include <wx/settings.h>
 #include <wx/xrc/xmlres.h>
-
-#if CL_BUILD
-#include "drawingutils.h"
-#endif
 
 clTabColours::clTabColours() { InitDarkColours(); }
 
@@ -71,15 +71,21 @@ void clTabColours::InitLightColours()
 
     } else {
         // Make it lighter
-        activeTabBgColour = faceColour;//.ChangeLightness(150);
+        activeTabBgColour = faceColour; //.ChangeLightness(150);
         activeTabPenColour = faceColour.ChangeLightness(70);
     }
 
     activeTabInnerPenColour = activeTabBgColour;
-    if(DrawingUtils::IsDark(activeTabBgColour)) { activeTabTextColour = *wxWHITE; }
+    if(DrawingUtils::IsDark(activeTabBgColour)) {
+        activeTabTextColour = *wxWHITE;
+    }
 
     tabAreaColour = faceColour;
+#if CL_BUILD
     markerColour = clConfig::Get().Read("ActiveTabMarkerColour", wxColour("#80ccff"));
+#else
+    markerColour = wxSystemSettings::GetColour(wxSYS_COLOUR_ACTIVECAPTION);
+#endif
 
     inactiveTabBgColour = tabAreaColour.ChangeLightness(90);
     inactiveTabPenColour = tabAreaColour.ChangeLightness(70);
@@ -88,19 +94,22 @@ void clTabColours::InitLightColours()
 
 bool clTabColours::IsDarkColours() const { return DrawingUtils::IsDark(activeTabBgColour); }
 
-clTabInfo::clTabInfo(clTabCtrl* tabCtrl, size_t style, wxWindow* page, const wxString& text, const wxBitmap& bmp)
+static size_t uniqueIDCounter = 0;
+
+clTabInfo::clTabInfo(clTabCtrlBase* tabCtrl, size_t style, void* page, const wxString& text, const wxBitmap& bmp)
     : m_tabCtrl(tabCtrl)
+    , m_ptr(page)
     , m_label(text)
     , m_bitmap(bmp)
-    , m_window(page)
     , m_active(false)
+    , m_id(++uniqueIDCounter)
 {
     CalculateOffsets(style);
 }
 
-clTabInfo::clTabInfo(clTabCtrl* tabCtrl)
+clTabInfo::clTabInfo(clTabCtrlBase* tabCtrl)
     : m_tabCtrl(tabCtrl)
-    , m_window(NULL)
+    , m_ptr(nullptr)
     , m_active(false)
     , m_textX(wxNOT_FOUND)
     , m_textY(wxNOT_FOUND)
@@ -108,8 +117,8 @@ clTabInfo::clTabInfo(clTabCtrl* tabCtrl)
     , m_bmpY(wxNOT_FOUND)
     , m_bmpCloseX(wxNOT_FOUND)
     , m_bmpCloseY(wxNOT_FOUND)
+    , m_id(++uniqueIDCounter)
 {
-
     CalculateOffsets(0);
 }
 
@@ -210,6 +219,8 @@ void clTabInfo::SetActive(bool active, size_t style)
     CalculateOffsets(style);
 }
 
+bool clTabInfo::Equals(clTabInfo::Ptr_t other) const { return m_id == other->m_id; }
+
 clTabRenderer::clTabRenderer()
     : bottomAreaHeight(0)
     , majorCurveWidth(0)
@@ -217,8 +228,11 @@ clTabRenderer::clTabRenderer()
     , overlapWidth(0)
     , verticalOverlapWidth(0)
     , xSpacer(10)
+    , ySpacer(3)
 {
+#if CL_BUILD
     ySpacer = EditorConfigST::Get()->GetOptions()->GetNotebookTabHeight();
+#endif
 }
 
 wxFont clTabRenderer::GetTabFont() { return DrawingUtils::GetDefaultGuiFont(); }
@@ -272,7 +286,7 @@ void clTabRenderer::ClearActiveTabExtraLine(clTabInfo::Ptr_t activeTab, wxDC& dc
         pt2.x -= 1;
 #else
         pt1.x += 2; // Skip the marker on the left side drawn in pen 3 pixel width
-//        pt2.x -= 1;
+                    //        pt2.x -= 1;
 #endif
         DRAW_LINE(pt1, pt2);
         pt1.y += 1;
@@ -290,4 +304,3 @@ void clTabRenderer::DrawChevron(wxWindow* win, wxDC& dc, const wxRect& rect, con
 {
     DrawingUtils::DrawDropDownArrow(win, dc, rect, colours.activeTabPenColour);
 }
-#endif

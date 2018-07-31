@@ -71,16 +71,13 @@ public:
              const wxSize& size = wxDefaultSize, long style = 0, const wxString& name = wxEmptyString);
 
     /**
-     * @brief update the notebook art class and refresh
-     */
-    void SetArt(clTabRenderer::Ptr_t art) { m_tabCtrl->SetArt(art); }
-
-    /**
      * @brief set the notebook style. The style bits are kNotebook_* (you can set several
      * styles OR-ed)
      */
     void SetStyle(size_t style);
-
+    
+    void SetArt(clTabRenderer::Ptr_t art) { m_tabCtrl->SetArt(art); }
+    
     /**
      * @brief set the tab direction
      */
@@ -135,7 +132,7 @@ public:
     /**
      * @brief Deletes all pages
      */
-    bool DeleteAllPages();
+    void DeleteAllPages();
 
     /**
      * @brief set a new selection. This function fires an event that can be vetoed
@@ -185,7 +182,7 @@ public:
      * @param window
      * @return return window index, or wxNOT_FOUND
      */
-    int GetPageIndex(wxWindow* window) const { return m_tabCtrl->GetPageIndex(window); }
+    int GetPageIndex(wxWindow* window) const { return m_tabCtrl->GetPageByWin(window); }
 
     /**
      * @brief return the index of a given window by its title

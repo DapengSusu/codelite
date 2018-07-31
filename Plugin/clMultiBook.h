@@ -152,7 +152,7 @@ public:
      * @param window
      * @return return window index, or wxNOT_FOUND
      */
-    int GetPageIndex(wxWindow* window) const;
+    int GetPageIndex(void* window) const;
 
     /**
      * @brief return the index of a given window by its title

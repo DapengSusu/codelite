@@ -4,12 +4,11 @@
 #include "codelite_exports.h"
 #include <vector>
 #include <wx/sharedptr.h>
-#include <wx/window.h>
 #include <algorithm>
 
 class WXDLLIMPEXP_SDK clTabHistory
 {
-    std::vector<wxWindow*> m_history;
+    std::vector<void*> m_history;
 
 public:
     typedef wxSharedPtr<clTabHistory> Ptr_t;
@@ -18,27 +17,25 @@ public:
     clTabHistory() {}
     virtual ~clTabHistory() {}
 
-    void Push(wxWindow* page)
+    void Push(void* tabID)
     {
-        if(page == NULL) return;
-        Pop(page);
-        m_history.insert(m_history.begin(), page);
+        Pop(tabID);
+        m_history.insert(m_history.begin(), tabID);
     }
 
-    void Pop(wxWindow* page)
+    void Pop(void* tabID)
     {
-        if(!page) return;
-        std::vector<wxWindow*>::iterator iter =
-            std::find_if(m_history.begin(), m_history.end(), [&](wxWindow* w) { return w == page; });
+        std::vector<void*>::iterator iter =
+            std::find_if(m_history.begin(), m_history.end(), [&](void* p) { return p == tabID; });
         if(iter != m_history.end()) {
             m_history.erase(iter);
         }
     }
 
-    wxWindow* PrevPage()
+    void* PrevPage()
     {
         if(m_history.empty()) {
-            return NULL;
+            return nullptr;
         }
         // return the top of the heap
         return m_history[0];
@@ -53,7 +50,7 @@ public:
      * @brief return the tabbing history
      * @return
      */
-    const std::vector<wxWindow*>& GetHistory() const { return m_history; }
+    const std::vector<void*>& GetHistory() const { return m_history; }
 };
 
 #endif // CLTABHISTORY_H

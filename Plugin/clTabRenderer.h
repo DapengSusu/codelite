@@ -28,62 +28,7 @@
 #define CHEVRON_SIZE 20
 #define CLOSE_BUTTON_SIZE 12
 
-#if USE_AUI_NOTEBOOK
-#include <wx/aui/auibook.h>
-enum NotebookStyle {
-
-    //------------------------------------------
-    // Our custom styles starting from 18'th bit
-    //------------------------------------------
-
-    /// Use the built-in light tab colours
-    kNotebook_LightTabs = (1 << 18),
-    /// Use the built-in dark tab colours
-    kNotebook_DarkTabs = (1 << 19),
-    /// Allow tabs to move using DnD
-    kNotebook_AllowDnD = wxAUI_NB_TAB_MOVE,
-    /// Draw X button on the active tab
-    kNotebook_CloseButtonOnActiveTab = wxAUI_NB_CLOSE_ON_ACTIVE_TAB,
-    /// Show a drop down button for displaying all tabs list
-    kNotebook_ShowFileListButton = wxAUI_NB_WINDOWLIST_BUTTON,
-    /// Mouse middle click on a tab fires an event
-    kNotebook_MouseMiddleClickFireEvent = (1 << 20),
-    /// Clicking the X button on the active button fires an event
-    /// instead of closing the tab (i.e. let the container a complete control)
-    kNotebook_CloseButtonOnActiveTabFireEvent = (1 << 21),
-    /// Fire navigation event for Ctrl-TAB et al
-    kNotebook_EnableNavigationEvent = (1 << 22),
-    /// Place tabs at the bottom
-    kNotebook_BottomTabs = wxAUI_NB_BOTTOM,
-    /// Enable colour customization events
-    kNotebook_EnableColourCustomization = (1 << 23),
-    /// Place the tabs on the right
-    kNotebook_RightTabs = wxAUI_NB_RIGHT,
-    /// Place th tabs on the left
-    kNotebook_LeftTabs = wxAUI_NB_LEFT,
-    /// Vertical tabs as buttons
-    kNotebook_VerticalButtons = (1 << 24),
-
-    /// Underline the active tab with a 2 pixel line
-    kNotebook_UnderlineActiveTab = (1 << 25),
-
-    /// When scrolling with the mouse button when hovering the tab control, switch between tabs
-    kNotebook_MouseScrollSwitchTabs = (1 << 26),
-
-    /// The notebook colours are changing based on the current editor theme
-    kNotebook_DynamicColours = (1 << 27),
-
-    /// Mouse middle click closes tab
-    kNotebook_MouseMiddleClickClosesTab = (1 << 28),
-
-    // Top tabs
-    kNotebook_TopTabs = wxAUI_NB_TOP,
-
-    /// Default notebook
-    kNotebook_Default = wxAUI_NB_DEFAULT_STYLE,
-};
-#else
-class clTabCtrl;
+class clTabCtrlBase;
 enum NotebookStyle {
     /// Use the built-in light tab colours
     kNotebook_LightTabs = (1 << 0),
@@ -180,12 +125,14 @@ public:
  */
 class WXDLLIMPEXP_SDK clTabInfo
 {
+private:
+    clTabCtrlBase* m_tabCtrl;
+    void* m_ptr;
+
 public:
-    clTabCtrl* m_tabCtrl;
     wxString m_label;
     wxBitmap m_bitmap;
     wxString m_tooltip;
-    wxWindow* m_window;
     wxRect m_rect;
     bool m_active;
     int m_textX;
@@ -197,6 +144,7 @@ public:
     int m_width;
     int m_height;
     int m_vTabsWidth;
+    size_t m_id;
 
 public:
     void CalculateOffsets(size_t style);
@@ -205,12 +153,13 @@ public:
     typedef wxSharedPtr<clTabInfo> Ptr_t;
     typedef std::vector<clTabInfo::Ptr_t> Vec_t;
 
-    clTabInfo(clTabCtrl* tabCtrl);
-    clTabInfo(clTabCtrl* tabCtrl, size_t style, wxWindow* page, const wxString& text,
-              const wxBitmap& bmp = wxNullBitmap);
-    virtual ~clTabInfo() {}
+    bool Equals(clTabInfo::Ptr_t other) const;
 
-    bool IsValid() const { return m_window != NULL; }
+    clTabInfo(clTabCtrlBase* tabCtrl);
+    clTabInfo(clTabCtrlBase* tabCtrl, size_t style, void* page, const wxString& text, const wxBitmap& bmp = wxNullBitmap);
+    virtual ~clTabInfo() {}
+    size_t GetId() const { return m_id; }
+    bool IsValid() const { return m_ptr != NULL; }
     void SetBitmap(const wxBitmap& bitmap, size_t style);
     void SetLabel(const wxString& label, size_t style);
     void SetActive(bool active, size_t style);
@@ -219,9 +168,9 @@ public:
     const wxString& GetLabel() const { return m_label; }
     const wxRect& GetRect() const { return m_rect; }
     wxRect& GetRect() { return m_rect; }
-    wxWindow* GetWindow() { return m_window; }
-    wxWindow* GetWindow() const { return m_window; }
-    void SetWindow(wxWindow* window) { this->m_window = window; }
+    void* GetPagePtr() { return m_ptr; }
+    void* GetPagePtr() const { return m_ptr; }
+    void SetPagePtr(void* p) { this->m_ptr = p; }
     bool IsActive() const { return m_active; }
     int GetBmpCloseX() const { return m_bmpCloseX; }
     int GetBmpCloseY() const { return m_bmpCloseY; }
@@ -229,6 +178,7 @@ public:
     int GetWidth() const { return m_width; }
     void SetTooltip(const wxString& tooltip) { this->m_tooltip = tooltip; }
     const wxString& GetTooltip() const { return m_tooltip; }
+    template <class T> T* GetPtrAs() const { return reinterpret_cast<T*>(GetPagePtr()); }
 };
 
 class WXDLLIMPEXP_SDK clTabRenderer
@@ -270,5 +220,5 @@ public:
      */
     static void DrawChevron(wxWindow* win, wxDC& dc, const wxRect& rect, const clTabColours& colours);
 };
-#endif
+
 #endif // CLTABRENDERER_H

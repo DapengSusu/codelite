@@ -118,7 +118,7 @@ int Notebook::FindPage(wxWindow* page) const { return m_tabCtrl->FindPage(page);
 
 bool Notebook::RemovePage(size_t page, bool notify) { return m_tabCtrl->RemovePage(page, notify, false); }
 bool Notebook::DeletePage(size_t page, bool notify) { return m_tabCtrl->RemovePage(page, notify, true); }
-bool Notebook::DeleteAllPages() { return m_tabCtrl->DeleteAllPages(); }
+void Notebook::DeleteAllPages() { m_tabCtrl->DeleteAllPages(); }
 
 void Notebook::EnableStyle(NotebookStyle style, bool enable)
 {

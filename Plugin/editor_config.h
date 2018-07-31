@@ -29,11 +29,13 @@
 #include <wx/filename.h>
 #include <vector>
 #include "wx/xml/xml.h"
-#include "lexer_configuration.h"
-#include "optionsconfig.h"
 #include "map"
 #include "serialized_object.h"
+#if CL_BUILD
+#include "lexer_configuration.h"
+#include "optionsconfig.h"
 #include "plugin.h"
+#endif
 #include "codelite_exports.h"
 #include "cl_config.h"
 

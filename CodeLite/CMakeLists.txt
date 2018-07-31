@@ -74,6 +74,7 @@ if(WIN32)
     add_definitions(-DWXMAKINGDLL_CL)
 endif(WIN32)
 add_definitions(-DwxUSE_GUI=1)
+add_definitions(-DCL_BUILD=1)
 
 if ( USE_PCH )
     add_definitions(-include "${CL_PCH_FILE}")

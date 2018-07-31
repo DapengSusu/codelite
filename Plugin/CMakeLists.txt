@@ -33,7 +33,7 @@ endif()
 if ( APPLE )
     add_definitions(-fPIC)
 endif()
-
+add_definitions(-DCL_BUILD=1)
 ## On UNIX we require GTK
 if (UNIX AND NOT APPLE)
 

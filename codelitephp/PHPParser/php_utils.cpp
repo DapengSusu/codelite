@@ -2,8 +2,8 @@
 #include <wx/treectrl.h>
 #include <wx/filename.h>
 #include <wx/tokenzr.h>
-#include <lexer_configuration.h>
-#include <editor_config.h>
+#include "lexer_configuration.h"
+#include "editor_config.h"
 #include "php_utils.h"
 #include <wx/uri.h>
 #include <wx/base64.h>

@@ -406,6 +406,10 @@
       <File Name="GotoAnythingDlg.h"/>
     </VirtualDirectory>
     <VirtualDirectory Name="Notebook">
+      <File Name="clSTCTabCtrl.h"/>
+      <File Name="clSTCTabCtrl.cpp"/>
+      <File Name="clTabCtrlBase.h"/>
+      <File Name="clTabCtrlBase.cpp"/>
       <File Name="clTabCtrl.cpp"/>
       <File Name="clTabCtrl.h"/>
       <File Name="clSTCEventsHandler.cpp"/>
@@ -417,8 +421,6 @@
       <File Name="clTab.h"/>
       <File Name="clTabHistory.cpp"/>
       <File Name="clTabHistory.h"/>
-      <File Name="clAuiNotebook.cpp"/>
-      <File Name="clAuiNotebook.h"/>
       <File Name="drawingutils.cpp"/>
       <File Name="drawingutils.h"/>
       <File Name="dockablepane.cpp"/>
