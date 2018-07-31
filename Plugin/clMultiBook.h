@@ -113,7 +113,7 @@ public:
     /**
      * @brief update the selected tab. This function also fires an event
      */
-    int SetSelection(size_t tabIdx);
+    int SetSelection(size_t tabIdx, bool notify = true);
 
     /**
      * @brief Sets the text for the given page.

@@ -215,7 +215,7 @@ public:
 
     bool AddPage(wxWindow* win, const wxString& text, const wxString& tooltip = wxEmptyString,
                  const wxBitmap& bmp = wxNullBitmap, bool selected = false, int insert_at_index = wxNOT_FOUND);
-    bool SelectPage(wxWindow* win);
+    bool SelectPage(wxWindow* win, bool notify = true);
 
     bool UserSelectFiles(std::vector<std::pair<wxFileName, bool> >& files, const wxString& title,
                          const wxString& caption, bool cancellable = true);

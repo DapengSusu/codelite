@@ -240,7 +240,7 @@ bool clMultiBook::SetPageToolTip(size_t page, const wxString& tooltip)
     return false;
 }
 
-int clMultiBook::SetSelection(size_t tabIdx)
+int clMultiBook::SetSelection(size_t tabIdx, bool notify)
 {
     Notebook* book;
     size_t bookIndex;
@@ -258,7 +258,7 @@ int clMultiBook::SetSelection(size_t tabIdx)
             m_selection = tabIdx;
             m_history->Pop(focusedPage);
             m_history->Push(focusedPage);
-            return book->SetSelection(modIndex);
+            return notify ? book->SetSelection(modIndex) : book->ChangeSelection(modIndex);
         } else {
             // There is no point on calling Notebook::SetSelection since it is already selected
             // However, in the term of 'multi book' control, we might need to generate the events ourselves here
@@ -452,6 +452,8 @@ void clMultiBook::OnEventProxy(wxBookCtrlEvent& event)
 void clMultiBook::OnFocus(wxFocusEvent& e)
 {
     e.Skip();
+    return;
+    
     wxWindow* focusedWindow = wxWindow::FindFocus();
     CHECK_PTR_RET(focusedWindow);
 

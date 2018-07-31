@@ -600,7 +600,7 @@ clEditor* MainBook::OpenFile(const wxString& file_name, const wxString& projectN
 
         int sel = m_book->GetSelection();
         if((extra & OF_PlaceNextToCurrent) && (sel != wxNOT_FOUND)) {
-            AddPage(editor, fileName.GetFullName(), tooltip.IsEmpty() ? fileName.GetFullPath() : tooltip, bmp, false,
+            AddPage(editor, fileName.GetFullName(), tooltip.IsEmpty() ? fileName.GetFullPath() : tooltip, bmp, true,
                     sel + 1);
         } else {
             AddPage(editor, fileName.GetFullName(), tooltip.IsEmpty() ? fileName.GetFullPath() : tooltip, bmp);
@@ -661,9 +661,7 @@ clEditor* MainBook::OpenFile(const wxString& file_name, const wxString& projectN
         BrowseRecord jumpto = editor->CreateBrowseRecord();
         NavMgr::Get()->AddJump(jumpfrom, jumpto);
     }
-#if !CL_USE_NATIVEBOOK
     if(m_book->GetPageCount() == 1) { m_book->GetSizer()->Layout(); }
-#endif
     return editor;
 }
 
@@ -682,35 +680,16 @@ bool MainBook::AddPage(wxWindow* win, const wxString& text, const wxString& tool
         }
     }
 
-    if(closeLastTab) {
-#if 0
-        // We have reached the limit of the number of open buffers
-        // Close the last used buffer
-        const wxArrayPtrVoid& arr = m_book->GetHistory();
-        if(arr.GetCount()) {
-            // We got at least one page, close the last used
-            wxWindow* tab = static_cast<wxWindow*>(arr.Item(arr.GetCount() - 1));
-            ClosePage(tab);
-        }
-#endif
-    }
-
-#if !CL_USE_NATIVEBOOK
     if(m_book->GetPageCount() == 1) { m_book->GetSizer()->Layout(); }
-#endif
     if(!tooltip.IsEmpty()) { m_book->SetPageToolTip(m_book->GetPageIndex(win), tooltip); }
     return true;
 }
 
-bool MainBook::SelectPage(wxWindow* win)
+bool MainBook::SelectPage(wxWindow* win, bool notify)
 {
     int index = m_book->GetPageIndex(win);
     if(index != wxNOT_FOUND && m_book->GetSelection() != index) {
-#if USE_AUI_NOTEBOOK
-        m_book->ChangeSelection(index);
-#else
-        m_book->SetSelection(index);
-#endif
+        m_book->SetSelection(index, notify);
     }
     return DoSelectPage(win);
 }
@@ -1131,7 +1110,7 @@ void MainBook::OnPageChanged(wxBookCtrlEvent& e)
     int newSel = e.GetSelection();
     if(newSel != wxNOT_FOUND && m_reloadingDoRaise) {
         wxWindow* win = m_book->GetPage((size_t)newSel);
-        if(win) { SelectPage(win); }
+        if(win) { SelectPage(win, false); }
     }
 
     // Cancel any tooltip
