@@ -390,9 +390,6 @@ clEditor* MainBook::GetActiveEditor(bool includeDetachedEditors)
 void MainBook::GetAllTabs(clTab::Vec_t& tabs)
 {
     tabs.clear();
-#if USE_AUI_NOTEBOOK
-    m_book->GetAllTabs(tabs);
-#else
     clTabInfo::Vec_t tabsInfo;
     m_book->GetAllTabs(tabsInfo);
 
@@ -401,7 +398,7 @@ void MainBook::GetAllTabs(clTab::Vec_t& tabs)
         clTab t;
         t.bitmap = tabInfo->GetBitmap();
         t.text = tabInfo->GetLabel();
-        t.window = tabInfo->GetWindow();
+        t.window = tabInfo->GetPtrAs<wxWindow>();
 
         clEditor* editor = dynamic_cast<clEditor*>(t.window);
         if(editor) {
@@ -411,7 +408,6 @@ void MainBook::GetAllTabs(clTab::Vec_t& tabs)
         }
         tabs.push_back(t);
     });
-#endif
 }
 
 void MainBook::GetAllEditors(clEditor::Vec_t& editors, size_t flags)
