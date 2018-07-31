@@ -406,6 +406,8 @@
       <File Name="GotoAnythingDlg.h"/>
     </VirtualDirectory>
     <VirtualDirectory Name="Notebook">
+      <File Name="clTabCtrl.cpp"/>
+      <File Name="clTabCtrl.h"/>
       <File Name="clSTCEventsHandler.cpp"/>
       <File Name="clSTCEventsHandler.h"/>
       <File Name="clSTCBookCtrl.cpp"/>
