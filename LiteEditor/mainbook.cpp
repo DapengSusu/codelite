@@ -544,6 +544,7 @@ clEditor* MainBook::OpenFile(const wxString& file_name, const wxString& projectN
     fileName.MakeAbsolute();
 
 #ifdef __WXMSW__
+    wxWindowUpdateLocker locker(this);
     // Handle cygwin paths
     wxString curpath = fileName.GetFullPath();
     static wxRegEx reCygdrive("/cygdrive/([A-Za-z])");

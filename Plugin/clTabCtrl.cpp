@@ -39,9 +39,7 @@ wxWindow* clTabCtrl::GetPage(size_t index) const
 int clTabCtrl::FindPage(wxWindow* page) const
 {
     for(size_t i = 0; i < m_tabs.size(); ++i) {
-        if(m_tabs[i]->GetPagePtr() == page) {
-            return i;
-        }
+        if(m_tabs[i]->GetPagePtr() == page) { return i; }
     }
     return wxNOT_FOUND;
 }
@@ -59,9 +57,7 @@ void clTabCtrl::GetAllPages(std::vector<wxWindow*>& pages)
 {
     std::for_each(m_tabs.begin(), m_tabs.end(), [&](clTabInfo::Ptr_t tabInfo) {
         wxWindow* win = GET_WINDOW_PTR(tabInfo);
-        if(win) {
-            pages.push_back(win);
-        }
+        if(win) { pages.push_back(win); }
     });
 }
 

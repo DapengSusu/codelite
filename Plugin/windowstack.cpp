@@ -25,6 +25,7 @@
 #include "drawingutils.h"
 #include "windowstack.h"
 #include <wx/dcbuffer.h>
+#include <wx/wupdlock.h>
 
 WindowStack::WindowStack(wxWindow* parent, wxWindowID id)
     : wxSimplebook(parent, id)
@@ -38,6 +39,9 @@ WindowStack::~WindowStack() {}
 
 void WindowStack::Select(wxWindow* win)
 {
+#ifdef __WXMSW__
+    wxWindowUpdateLocker locker(this);
+#endif
     int index = FindPage(win);
     if(index == wxNOT_FOUND) { return; }
     ChangeSelection(index);

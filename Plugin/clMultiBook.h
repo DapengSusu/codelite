@@ -1,11 +1,11 @@
 #ifndef CLMULTIBOOK_H
 #define CLMULTIBOOK_H
 
+#include "clTabHistory.h"
 #include <Notebook.h>
 #include <codelite_exports.h>
 #include <vector>
 #include <wx/bitmap.h>
-#include "clTabHistory.h"
 #include <wx/splitter.h>
 
 class WXDLLIMPEXP_SDK clMultiBook : public wxPanel
@@ -25,7 +25,7 @@ protected:
     void UpdateView();
     int BookIndexToGlobalIndex(size_t bookIndex, size_t pageIndex) const;
     int BookIndexToGlobalIndex(Notebook* book, size_t pageIndex) const;
-    //Notebook* AddNotebook();
+    // Notebook* AddNotebook();
     Notebook* CreateNotebook(wxWindow* parent);
     bool IsOurNotebook(Notebook* book) const;
 
@@ -37,9 +37,9 @@ public:
     clMultiBook(wxWindow* parent, wxWindowID id = wxID_ANY, const wxPoint& pos = wxDefaultPosition,
                 const wxSize& size = wxDefaultSize, long style = 0, const wxString& name = wxEmptyString);
     virtual ~clMultiBook();
-    
+
     clTabHistory::Ptr_t GetHistory() { return m_history; }
-    
+
     /**
      * @brief move page one notebook right
      */
@@ -127,10 +127,10 @@ public:
     /**
      * @brief return the page bitmap
      * @param page
-     * @return 
+     * @return
      */
     wxBitmap GetPageBitmap(size_t page) const;
-    
+
     /**
      * @brief Deletes all pages
      */

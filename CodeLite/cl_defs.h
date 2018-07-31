@@ -32,6 +32,10 @@
 #include <wx/version.h>
 
 #define USE_AUI_NOTEBOOK 0
+#ifdef __WXMSW__
+// Define it here, for other platforms, we defined it CMakeLists.txt
+#define CL_BUILD 1
+#endif
 
 // Defaults
 #ifdef __WXGTK__

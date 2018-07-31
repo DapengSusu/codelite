@@ -258,7 +258,8 @@ int clMultiBook::SetSelection(size_t tabIdx, bool notify)
             m_selection = tabIdx;
             m_history->Pop(focusedPage);
             m_history->Push(focusedPage);
-            return notify ? book->SetSelection(modIndex) : book->ChangeSelection(modIndex);
+            notify ? book->SetSelection(modIndex) : book->ChangeSelection(modIndex);
+            return wxNOT_FOUND;
         } else {
             // There is no point on calling Notebook::SetSelection since it is already selected
             // However, in the term of 'multi book' control, we might need to generate the events ourselves here
