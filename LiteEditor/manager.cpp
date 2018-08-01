@@ -1587,7 +1587,7 @@ bool Manager::ShowOutputPane(wxString focusWin, bool commit)
         wxWindow* focus = wxWindow::FindFocus();
         clEditor* editor = dynamic_cast<clEditor*>(focus);
         pane->GetNotebook()->SetSelection((size_t)index);
-        if(editor) { editor->SetFocus(); }
+        if(editor) { editor->GetCtrl()->SetFocus(); }
     }
 
 #ifndef __WXMSW__

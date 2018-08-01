@@ -38,6 +38,7 @@
 #include <set>
 #include <wx/panel.h>
 
+class clSTCEventsHandler;
 class FilesModifiedDlg;
 enum OF_extra { OF_None = 0x00000001, OF_AddJump = 0x00000002, OF_PlaceNextToCurrent = 0x00000004 };
 
@@ -93,7 +94,7 @@ private:
     void OnDetachedEditorClosed(clCommandEvent& e);
     void OnThemeChanged(wxCommandEvent& e);
     void OnColoursAndFontsChanged(clCommandEvent& e);
-    bool DoSelectPage(wxWindow* win);
+    bool DoSelectPage(clSTCEventsHandler* win);
     void DoPositionFindBar();
     void DoHandleFrameMenu(clEditor* editor);
     void DoEraseDetachedEditor(IEditor* editor);
@@ -187,13 +188,17 @@ public:
     void GetDetachedTabs(clTab::Vec_t& tabs);
 
     clEditor* FindEditor(const wxString& fileName);
-    bool CloseEditor(const wxString& fileName) { return ClosePage(FindEditor(fileName)); }
+    bool CloseEditor(const wxString& fileName)
+    {
+        clEditor* editor = FindEditor(fileName);
+        return ClosePage(editor);
+    }
 
-    wxWindow* GetCurrentPage();
+    clSTCEventsHandler* GetCurrentPage();
     int GetCurrentPageIndex();
-    wxWindow* GetPage(size_t page);
+    clSTCEventsHandler* GetPage(size_t page);
     size_t GetPageCount() const;
-    wxWindow* FindPage(const wxString& text);
+    clSTCEventsHandler* FindPage(const wxString& text);
 
     clEditor* NewEditor();
 
@@ -213,9 +218,9 @@ public:
         return OpenFile(file_name, "", wxNOT_FOUND, wxNOT_FOUND, OF_AddJump, false, bmp, tooltip);
     }
 
-    bool AddPage(wxWindow* win, const wxString& text, const wxString& tooltip = wxEmptyString,
+    bool AddPage(clSTCEventsHandler* win, const wxString& text, const wxString& tooltip = wxEmptyString,
                  const wxBitmap& bmp = wxNullBitmap, bool selected = false, int insert_at_index = wxNOT_FOUND);
-    bool SelectPage(wxWindow* win, bool notify = true);
+    bool SelectPage(clSTCEventsHandler* win, bool notify = true);
 
     bool UserSelectFiles(std::vector<std::pair<wxFileName, bool> >& files, const wxString& title,
                          const wxString& caption, bool cancellable = true);
@@ -226,19 +231,19 @@ public:
 
     bool ClosePage(const wxString& text);
 
-    bool ClosePage(wxWindow* win);
+    bool ClosePage(clSTCEventsHandler* win);
     bool ClosePage(IEditor* editor, bool prompt);
-    bool CloseAllButThis(wxWindow* win);
+    bool CloseAllButThis(clSTCEventsHandler* win);
     bool CloseAll(bool cancellable);
 
     // These 3 functions are meant to be used with CallAfter
-    void ClosePageVoid(wxWindow* win);
-    void CloseAllButThisVoid(wxWindow* win);
-    void CloseTabsToTheRight(wxWindow* win);
+    void ClosePageVoid(clSTCEventsHandler* win);
+    void CloseAllButThisVoid(clSTCEventsHandler* win);
+    void CloseTabsToTheRight(clSTCEventsHandler* win);
     void CloseAllVoid(bool cancellable);
 
-    wxString GetPageTitle(wxWindow* win) const;
-    void SetPageTitle(wxWindow* page, const wxString& name);
+    wxString GetPageTitle(clSTCEventsHandler* win) const;
+    void SetPageTitle(clSTCEventsHandler* page, const wxString& name);
     long GetBookStyle();
 
     void ApplySettingsChanges();

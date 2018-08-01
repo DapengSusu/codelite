@@ -436,16 +436,14 @@ void NewBuildTab::MarkEditor(clEditor* editor)
         if(!text.IsEmpty()) {
             if(bli && (bli->GetSeverity() == SV_ERROR || bli->GetSeverity() == SV_WARNING)) {
                 const auto annotationIter = annotations.lower_bound(bli->GetLineNumber());
-                if ((annotationIter == annotations.end()) || (annotationIter->first != bli->GetLineNumber()))
-                {
+                if((annotationIter == annotations.end()) || (annotationIter->first != bli->GetLineNumber())) {
                     // insert new one
                     AnnotationInfo info;
                     info.line = bli->GetLineNumber();
                     info.severity = bli->GetSeverity();
                     info.text.emplace(std::move(text));
                     annotations.emplace_hint(annotationIter, bli->GetLineNumber(), std::move(info));
-                }
-                else {
+                } else {
                     // we already have an error on this line, concatenate the message
                     AnnotationInfo& info = annotationIter->second;
                     info.text.emplace(std::move(text));
@@ -462,9 +460,8 @@ void NewBuildTab::MarkEditor(clEditor* editor)
     AnnotationInfoByLineMap_t::iterator annIter = annotations.begin();
     for(; annIter != annotations.end(); ++annIter) {
         wxString concatText;
-        for (auto &text : annIter->second.text) {
-            if (!concatText.IsEmpty())
-                concatText << "\n";
+        for(auto& text : annIter->second.text) {
+            if(!concatText.IsEmpty()) concatText << "\n";
             concatText << text;
         }
 

@@ -3,12 +3,13 @@
 #include "clSTCTabCtrl.h"
 #include "clTabRenderer.h"
 #include <wx/sizer.h>
+#include <wx/wupdlock.h>
 
-clSTCBookCtrl::clSTCBookCtrl(wxWindow* parent)
+clSTCBookCtrl::clSTCBookCtrl(wxWindow* parent, size_t style)
     : wxPanel(parent, wxID_ANY)
     , m_defaultPage(nullptr)
 {
-    m_tabCtrl = new clSTCTabCtrl(this, kNotebook_Default | kNotebook_AllowDnD);
+    m_tabCtrl = new clSTCTabCtrl(this, style);
 
     SetSizer(new wxBoxSizer(wxVERTICAL));
 
@@ -20,11 +21,20 @@ clSTCBookCtrl::clSTCBookCtrl(wxWindow* parent)
 
 clSTCBookCtrl::~clSTCBookCtrl() { m_tabCtrl->DeleteAllPages(); }
 
-void clSTCBookCtrl::AddPage(clSTCEventsHandler* handler, const wxFileName& filename, const wxString& label,
-                            bool selected, const wxBitmap& bmp)
+void clSTCBookCtrl::InsertPage(int index, clSTCEventsHandler* handler, const wxString& label, bool selected,
+                               const wxBitmap& bmp)
 {
-    if(!m_stc->IsShown()) { m_stc->Show(); }
-    handler->SetFilename(filename);
+    // In practice, InsertPage() always succeeds (even though the signature suggests otherwise)
+    DisplayDefaultPage(false); // Hides the default page and displays the notebook control
+    if(m_tabCtrl->InsertPage(
+           index, clTabInfo::Ptr_t(new clTabInfo(m_tabCtrl, m_tabCtrl->GetStyle(), (void*)handler, label, bmp)))) {
+        if(selected) { SetSelection(index); }
+    }
+}
+
+void clSTCBookCtrl::AddPage(clSTCEventsHandler* handler, const wxString& label, bool selected, const wxBitmap& bmp)
+{
+    DisplayDefaultPage(false); // Hides the default page and displays the notebook control
     m_tabCtrl->AddPage(clTabInfo::Ptr_t(new clTabInfo(m_tabCtrl, m_tabCtrl->GetStyle(), (void*)handler, label, bmp)));
     if(selected) { SetSelection(m_tabCtrl->GetPageCount() - 1); }
 }
@@ -54,6 +64,7 @@ clSTCEventsHandler* clSTCBookCtrl::GetHandler(int index) const
     if(!tab) { return nullptr; }
     return tab->GetPtrAs<clSTCEventsHandler>();
 }
+
 clSTCEventsHandler* clSTCBookCtrl::GetActiveHandler() const { return GetHandler(wxNOT_FOUND); }
 
 int clSTCBookCtrl::GetSelection() const { return m_tabCtrl->GetSelection(); }
@@ -65,7 +76,7 @@ void clSTCBookCtrl::ChangeSelection(size_t index)
     if(m_tabCtrl->ChangeSelection(index)) { ChangeSelection(handler); }
 }
 
-void clSTCBookCtrl::SetPageText(int index, const wxString& label) { m_tabCtrl->SetPageText(index, label); }
+bool clSTCBookCtrl::SetPageText(int index, const wxString& label) { return m_tabCtrl->SetPageText(index, label); }
 
 wxString clSTCBookCtrl::GetPageText(int index) const { return m_tabCtrl->GetPageText(index); }
 
@@ -108,13 +119,12 @@ void clSTCBookCtrl::SetDefaultPage(wxWindow* page)
 
 void clSTCBookCtrl::DisplayDefaultPage(bool show)
 {
-    if(!m_defaultPage) return;
     if(show) {
-        DoShowPage(m_defaultPage, true, 1);
+        if(m_defaultPage) { DoShowPage(m_defaultPage, true, 1); }
         DoShowPage(m_tabCtrl, false, wxNOT_FOUND);
         DoShowPage(m_stc, false, wxNOT_FOUND);
     } else {
-        DoShowPage(m_defaultPage, false, wxNOT_FOUND);
+        if(m_defaultPage) { DoShowPage(m_defaultPage, false, wxNOT_FOUND); }
         DoShowPage(m_tabCtrl, true, 0);
         DoShowPage(m_stc, true, 1);
     }
@@ -137,3 +147,29 @@ void clSTCBookCtrl::DoShowPage(wxWindow* win, bool show, int proportion)
 }
 
 void clSTCBookCtrl::SetStyle(size_t style) { m_tabCtrl->SetStyle(style); }
+
+size_t clSTCBookCtrl::GetPageCount() const { return m_tabCtrl->GetPageCount(); }
+
+wxBitmap clSTCBookCtrl::GetPageBitmap(int index) const { return m_tabCtrl->GetPageBitmap(index); }
+
+bool clSTCBookCtrl::RemovePage(int index, bool notify) { return m_tabCtrl->RemovePage(index, notify, true); }
+bool clSTCBookCtrl::DeletePage(int index, bool notify) { return m_tabCtrl->RemovePage(index, notify, true); }
+
+clSTCEventsHandler* clSTCBookCtrl::GetCurrentPage() const { return GetHandler(); }
+
+size_t clSTCBookCtrl::GetAllTabs(clTabInfo::Vec_t& all)
+{
+    all = m_tabCtrl->GetTabs();
+    return all.size();
+}
+
+bool clSTCBookCtrl::SetPageToolTip(int index, const wxString& tooltip)
+{
+    return m_tabCtrl->SetPageToolTip(index, tooltip);
+}
+
+int clSTCBookCtrl::GetPageIndex(const wxString& label) const { return m_tabCtrl->GetPageIndex(label); }
+
+int clSTCBookCtrl::GetPageIndex(clSTCEventsHandler* handler) const { return m_tabCtrl->GetPageIndex((void*)handler); }
+
+bool clSTCBookCtrl::SetPageBitmap(int index, const wxBitmap& bmp) const { return m_tabCtrl->SetPageBitmap(index, bmp); }

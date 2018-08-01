@@ -14,7 +14,7 @@
 #include <wx/regex.h>
 #include <wx/wupdlock.h>
 
-#define GET_WINDOW_PTR(T) reinterpret_cast<wxWindow*>(T->GetPagePtr())
+#define GET_WINDOW_PTR(T) T->GetPtrAs<wxWindow>()
 
 // -------------------------------------------------------------------------------
 // clTabCtrl class.
@@ -44,14 +44,7 @@ int clTabCtrl::FindPage(wxWindow* page) const
     return wxNOT_FOUND;
 }
 
-int clTabCtrl::GetPageByWin(wxWindow* win) const
-{
-    if(!win) return wxNOT_FOUND;
-    for(size_t i = 0; i < m_tabs.size(); ++i) {
-        if(m_tabs.at(i)->GetPagePtr() == win) return i;
-    }
-    return wxNOT_FOUND;
-}
+int clTabCtrl::GetPageByWin(wxWindow* win) const { return GetTabIndexByPtr(win); }
 
 void clTabCtrl::GetAllPages(std::vector<wxWindow*>& pages)
 {
@@ -86,6 +79,7 @@ void clTabCtrl::BeforePageChange(clTabInfo::Ptr_t tab)
 
 void clTabCtrl::PageRemoved(clTabInfo::Ptr_t tab, bool deleteIt)
 {
+    clTabCtrlBase::BeforePageChange(tab);
     wxWindow* w = GET_WINDOW_PTR(tab);
     GetStack()->Remove(w);
     if(deleteIt) {

@@ -66,7 +66,6 @@ protected:
 protected:
     void DoDeletePage(size_t page) { RemovePage(page, true, true); }
     bool DoChangeSelection(size_t index);
-    int GetTabRealIndex(clTabInfo::Ptr_t tab) const;
     void DoSetBestSize();
     void OnPaint(wxPaintEvent& e);
     void OnEraseBG(wxEraseEvent& e);
@@ -96,11 +95,12 @@ protected:
     clTabInfo::Ptr_t GetTabInfoByPtr(void* ptr) const;
     int GetTabIndexByPtr(void* p) const;
     void DoShowTabList();
+    int GetTabRealIndex(clTabInfo::Ptr_t tab) const;
 
 public:
     clTabInfo::Ptr_t GetTabInfo(size_t index) const;
     bool RemovePage(size_t page, bool notify, bool deletePage);
-
+    
     virtual bool InsertPage(size_t index, clTabInfo::Ptr_t tab);
     void AddPage(clTabInfo::Ptr_t tab) { InsertPage(m_tabs.size(), tab); }
     
@@ -184,7 +184,7 @@ public:
     /**
      * @brief set a bitmap to page
      */
-    void SetPageBitmap(size_t index, const wxBitmap& bmp);
+    bool SetPageBitmap(size_t index, const wxBitmap& bmp);
     
     /**
      * @brief delete all pages
@@ -195,6 +195,11 @@ public:
      * @brief return page index by its label
      */
     int GetPageIndex(const wxString& label) const;
+    
+    /**
+     * @brief return the index of a given pointer
+     */
+    int GetPageIndex(void* p) const { return GetTabIndexByPtr(p); }
 };
 
 wxDECLARE_EXPORTED_EVENT(WXDLLIMPEXP_SDK, wxEVT_BOOK_PAGE_CHANGING, wxBookCtrlEvent);

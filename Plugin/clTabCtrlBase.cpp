@@ -745,10 +745,10 @@ wxBitmap clTabCtrlBase::GetPageBitmap(size_t index) const
     return wxNullBitmap;
 }
 
-void clTabCtrlBase::SetPageBitmap(size_t index, const wxBitmap& bmp)
+bool clTabCtrlBase::SetPageBitmap(size_t index, const wxBitmap& bmp)
 {
     clTabInfo::Ptr_t tab = GetTabInfo(index);
-    if(!tab) return;
+    if(!tab) return false;
 
     // Set the new bitmap and calc the difference
     int oldWidth = tab->GetWidth();
@@ -761,6 +761,7 @@ void clTabCtrlBase::SetPageBitmap(size_t index, const wxBitmap& bmp)
 
     // Redraw the tab control
     Refresh();
+    return true;
 }
 
 void clTabCtrlBase::OnLeftUp(wxMouseEvent& event)
@@ -1131,7 +1132,7 @@ void clTabCtrlBase::NotifyPageChanged(int oldIndex, int newIndex)
     event.SetEventObject(GetParent());
     event.SetSelection(newIndex);
     event.SetOldSelection(oldIndex);
-    GetParent()->GetEventHandler()->AddPendingEvent(event);
+    GetParent()->GetEventHandler()->ProcessEvent(event);
 }
 
 void clTabCtrlBase::NotifyPageButtonClicked(int index)

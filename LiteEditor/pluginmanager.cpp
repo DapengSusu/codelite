@@ -537,15 +537,27 @@ bool PluginManager::ClosePage(const wxFileName& filename)
     return clMainFrame::Get()->GetMainBook()->ClosePage(editor);
 }
 
-wxWindow* PluginManager::FindPage(const wxString& text) { return clMainFrame::Get()->GetMainBook()->FindPage(text); }
+wxWindow* PluginManager::FindPage(const wxString& text)
+{
+    wxMessageBox("Implement this");
+    // return clMainFrame::Get()->GetMainBook()->FindPage(text);
+    return nullptr;
+}
 
 bool PluginManager::AddPage(wxWindow* win, const wxString& text, const wxString& tooltip, const wxBitmap& bmp,
                             bool selected)
 {
-    return clMainFrame::Get()->GetMainBook()->AddPage(win, text, tooltip, bmp, selected);
+    wxMessageBox("PluginManager::AddPage: Implement this");
+    return true;
+    // return clMainFrame::Get()->GetMainBook()->AddPage(win, text, tooltip, bmp, selected);
 }
 
-bool PluginManager::SelectPage(wxWindow* win) { return clMainFrame::Get()->GetMainBook()->SelectPage(win); }
+bool PluginManager::SelectPage(wxWindow* win)
+{
+    wxMessageBox("PluginManager::SelectPage: Implement this");
+    return false;
+    // return clMainFrame::Get()->GetMainBook()->SelectPage(win);
+}
 
 IEditor* PluginManager::OpenFile(const BrowseRecord& rec) { return clMainFrame::Get()->GetMainBook()->OpenFile(rec); }
 
@@ -649,23 +661,37 @@ wxArrayString PluginManager::GetProjectCompileFlags(const wxString& projectName,
 
 void PluginManager::AddEditorPage(wxWindow* page, const wxString& name, const wxString& tooltip)
 {
-    clMainFrame::Get()->GetMainBook()->AddPage(page, name, tooltip, wxNullBitmap, true);
+    wxMessageBox("Implement this");
+    // clMainFrame::Get()->GetMainBook()->AddPage(page, name, tooltip, wxNullBitmap, true);
 }
 
 wxPanel* PluginManager::GetEditorPaneNotebook() { return clMainFrame::Get()->GetMainBook(); }
 
-wxWindow* PluginManager::GetActivePage() { return clMainFrame::Get()->GetMainBook()->GetCurrentPage(); }
+wxWindow* PluginManager::GetActivePage()
+{
+    wxMessageBox("Implement this");
+    return nullptr;
+    // return clMainFrame::Get()->GetMainBook()->GetCurrentPage();
+}
 
-wxWindow* PluginManager::GetPage(size_t page) { return clMainFrame::Get()->GetMainBook()->GetPage(page); }
+wxWindow* PluginManager::GetPage(size_t page)
+{
+    wxMessageBox("Implement this");
+    return nullptr;
+    // return clMainFrame::Get()->GetMainBook()->GetPage(page);
+}
 
 wxString PluginManager::GetPageTitle(wxWindow* win) const
 {
-    return clMainFrame::Get()->GetMainBook()->GetPageTitle(win);
+    wxMessageBox("Implement this");
+    return "";
+    // return clMainFrame::Get()->GetMainBook()->GetPageTitle(win);
 }
 
 void PluginManager::SetPageTitle(wxWindow* win, const wxString& title)
 {
-    clMainFrame::Get()->GetMainBook()->SetPageTitle(win, title);
+    wxMessageBox("Implement this");
+    // clMainFrame::Get()->GetMainBook()->SetPageTitle(win, title);
 }
 
 ProjectPtr PluginManager::GetSelectedProject() const

@@ -14,6 +14,10 @@ clSTCEventsHandler::clSTCEventsHandler(clSTCBookCtrl* book)
 clSTCEventsHandler::~clSTCEventsHandler()
 {
     m_book->GetCtrl()->ReleaseDocument(m_stcDoc);
+    if(m_book->GetCtrl()->GetClientData() == this) {
+        // Make sure that the wxSTC does not keep stale pointers
+        m_book->GetCtrl()->SetClientData(NULL);
+    }
     m_stcDoc = nullptr;
     m_book = nullptr;
 }
@@ -34,11 +38,9 @@ void clSTCEventsHandler::SelectIntoEditor()
             }
         }
     }
+
     m_book->GetCtrl()->SetDocPointer(m_stcDoc);
-    if(!m_fileLoaded) {
-        LoadFile(wxConvUTF8);
-        m_fileLoaded = true;
-    }
+    LoadFile();
 
     // Document as refcount of 2 now
     BindSTCEvents();
@@ -47,12 +49,6 @@ void clSTCEventsHandler::SelectIntoEditor()
     // Bind STC events to the new handler
     m_book->GetCtrl()->SetClientData(this);
     RestoreState();
-}
-
-void clSTCEventsHandler::LoadFile(const wxMBConv& conv)
-{
-    wxUnusedVar(conv);
-    m_book->GetCtrl()->LoadFile(GetFilename().GetFullPath());
 }
 
 void clSTCEventsHandler::CaptureState() { m_state.Capture(m_book->GetCtrl()); }
@@ -73,12 +69,8 @@ void clSTCEventsHandler::State::Capture(wxStyledTextCtrl* stc)
 
 void clSTCEventsHandler::State::Restore(wxStyledTextCtrl* stc)
 {
-    if(firstLineVisible != wxNOT_FOUND) {
-        stc->SetFirstVisibleLine(firstLineVisible);
-    }
-    if(position != wxNOT_FOUND) {
-        stc->SetCurrentPos(position);
-    }
+    if(firstLineVisible != wxNOT_FOUND) { stc->SetFirstVisibleLine(firstLineVisible); }
+    if(position != wxNOT_FOUND) { stc->SetCurrentPos(position); }
 
     stc->ClearSelections();
     for(size_t i = 0; i < selections.size(); ++i) {

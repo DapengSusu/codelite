@@ -30,3 +30,12 @@ void clSTCTabCtrl::NotifyPageChanged(int oldIndex, int newIndex)
         }
     }
 }
+
+void clSTCTabCtrl::PageRemoved(clTabInfo::Ptr_t tab, bool deleteIte)
+{
+    clTabCtrlBase::PageRemoved(tab, deleteIte);
+    // We always delete the window
+    clSTCEventsHandler* handler = tab->GetPtrAs<clSTCEventsHandler>();
+    wxDELETE(handler);
+    tab->SetPagePtr(nullptr);
+}

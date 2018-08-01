@@ -24,7 +24,7 @@ bool clPrintout::OnPrintPage(int page)
     PrintScaling(dc);
 
     // print page
-    m_edit->FormatRange(true, page == 1 ? 0 : m_pageEnds[page-2], m_pageEnds[page-1],
+    m_edit->GetCtrl()->FormatRange(true, page == 1 ? 0 : m_pageEnds[page-2], m_pageEnds[page-1],
                                       dc, dc, m_printRect, m_pageRect);
 
     return true;
@@ -84,7 +84,7 @@ void clPrintout::GetPageInfo(int* minPage, int* maxPage, int* selPageFrom, int* 
     m_pageEnds.Clear();
     int printed = 0;
     while ( printed < m_edit->GetLength() ) {
-        printed = m_edit->FormatRange(false, printed, m_edit->GetLength(),
+        printed = m_edit->GetCtrl()->FormatRange(false, printed, m_edit->GetLength(),
                                       dc, dc, m_printRect, m_pageRect);
         m_pageEnds.Add(printed);
         *maxPage += 1;

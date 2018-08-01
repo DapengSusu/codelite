@@ -1465,11 +1465,10 @@ void clMainFrame::OnTBUnRedo(wxAuiToolBarEvent& event)
 
         } else if(GetMainBook()->GetCurrentPage()) {
             event.StopPropagation(); // Otherwise we'll infinitely loop if the active page doesn't handle this event
-            GetMainBook()->GetCurrentPage()->GetEventHandler()->ProcessEvent(event); // Let the active plugin have a go
+            GetMainBook()->GetCurrentPage()->GetCtrl()->GetEventHandler()->ProcessEvent(
+                event); // Let the active plugin have a go
         }
-    }
-
-    else {
+    } else {
         DispatchCommandEvent(event); // Revert to standard processing
     }
 }
@@ -1600,7 +1599,7 @@ void clMainFrame::OnAbout(wxCommandEvent& WXUNUSED(event))
 void clMainFrame::OnClose(wxCloseEvent& event)
 {
     // Prompt before exit, but not if we're coming from the Setup Wizard
-    if (!GetAndResetNoSavePerspectivePrompt()) {
+    if(!GetAndResetNoSavePerspectivePrompt()) {
         wxStandardID ans =
             PromptForYesNoCancelDialogWithCheckbox(_("Closing CodeLite\n\nSave perspective and exit?"), "SaveAndExit",
                                                    "Save and Exit", "Exit without saving", "Don't Exit");
@@ -1618,7 +1617,7 @@ void clMainFrame::OnClose(wxCloseEvent& event)
             }
         }
     }
-    
+
     SaveGeneralSettings();
 
     event.Skip();
@@ -1739,7 +1738,7 @@ void clMainFrame::OnFileReload(wxCommandEvent& event)
             // Ask user if he really wants to lose all changes
             wxString msg;
             msg << editor->GetFileName().GetFullName() << _(" has been modified, reload file anyway?");
-            wxRichMessageDialog dlg(::wxGetTopLevelParent(editor), msg, _("Reload File"),
+            wxRichMessageDialog dlg(::wxGetTopLevelParent(editor->GetCtrl()), msg, _("Reload File"),
                                     wxYES_NO | wxCANCEL | wxNO_DEFAULT | wxICON_WARNING);
             if(dlg.ShowModal() != wxID_YES) { return; }
         }
@@ -1862,7 +1861,7 @@ void clMainFrame::OnFileClose(wxCommandEvent& event)
 {
     wxUnusedVar(event);
     if(GetMainBook()->GetCurrentPage()) {
-        wxWindow* winToClose = GetMainBook()->GetCurrentPage();
+        clSTCEventsHandler* winToClose = GetMainBook()->GetCurrentPage();
         GetMainBook()->CallAfter(&MainBook::ClosePageVoid, winToClose);
     }
 }
@@ -2616,8 +2615,8 @@ void clMainFrame::OnQuickOutline(wxCommandEvent& event)
 
     if(activeEditor->GetProject().IsEmpty()) return;
 
-    QuickOutlineDlg dlg(::wxGetTopLevelParent(activeEditor), activeEditor->GetFileName().GetFullPath(), wxID_ANY,
-                        wxT(""), wxDefaultPosition, wxSize(400, 400), wxDEFAULT_DIALOG_STYLE);
+    QuickOutlineDlg dlg(::wxGetTopLevelParent(activeEditor->GetCtrl()), activeEditor->GetFileName().GetFullPath(),
+                        wxID_ANY, wxT(""), wxDefaultPosition, wxSize(400, 400), wxDEFAULT_DIALOG_STYLE);
 
     dlg.ShowModal();
     activeEditor->SetActive();
@@ -2807,13 +2806,14 @@ void clMainFrame::OnBackwardForwardUI(wxUpdateUIEvent& event)
 
 void clMainFrame::CreateWelcomePage()
 {
-    WelcomePage* welcomePage = new WelcomePage(GetMainBook());
-    GetMainBook()->AddPage(welcomePage, _("Welcome!"), wxEmptyString, wxNullBitmap, true);
-    GetMainBook()->Layout();
-    // This is needed in >=wxGTK-2.9, otherwise the auinotebook doesn't fully expand at first
-    SendSizeEvent(wxSEND_EVENT_POST);
-    // Ditto the workspace pane auinotebook
-    GetWorkspacePane()->SendSizeEvent(wxSEND_EVENT_POST);
+    wxMessageBox("Implement this!");
+    // WelcomePage* welcomePage = new WelcomePage(GetMainBook());
+    // GetMainBook()->AddPage(welcomePage, _("Welcome!"), wxEmptyString, wxNullBitmap, true);
+    // GetMainBook()->Layout();
+    // // This is needed in >=wxGTK-2.9, otherwise the auinotebook doesn't fully expand at first
+    // SendSizeEvent(wxSEND_EVENT_POST);
+    // // Ditto the workspace pane auinotebook
+    // GetWorkspacePane()->SendSizeEvent(wxSEND_EVENT_POST);
 }
 
 void clMainFrame::OnImportMSVS(wxCommandEvent& e)
@@ -3288,7 +3288,7 @@ void clMainFrame::OnDebugAttach(wxCommandEvent& event)
 void clMainFrame::OnCloseAllButThis(wxCommandEvent& e)
 {
     wxUnusedVar(e);
-    wxWindow* win = GetMainBook()->GetCurrentPage();
+    clSTCEventsHandler* win = GetMainBook()->GetCurrentPage();
     if(win != NULL) { GetMainBook()->CallAfter(&MainBook::CloseAllButThisVoid, win); }
 }
 
@@ -3320,8 +3320,8 @@ void clMainFrame::OnConvertEol(wxCommandEvent& e)
         } else if(e.GetId() == XRCID("convert_eol_mac")) {
             eol = wxSTC_EOL_CR;
         }
-        editor->ConvertEOLs(eol);
-        editor->SetEOLMode(eol);
+        editor->GetCtrl()->ConvertEOLs(eol);
+        editor->GetCtrl()->SetEOLMode(eol);
     }
 }
 
@@ -3826,12 +3826,13 @@ void clMainFrame::OnOpenShellFromFilePath(wxCommandEvent& e)
 
 void clMainFrame::ShowWelcomePage()
 {
-    wxWindow* win = GetMainBook()->FindPage(_("Welcome!"));
-    if(win) {
-        GetMainBook()->SelectPage(win);
-    } else {
-        CreateWelcomePage();
-    }
+    wxMessageBox("Implement this clMainFrame::ShowWelcomePage()");
+    // clSTCEventsHandler* win = GetMainBook()->FindPage(_("Welcome!"));
+    // if(win) {
+    //     GetMainBook()->SelectPage(win);
+    // } else {
+    //     CreateWelcomePage();
+    // }
 }
 
 void clMainFrame::OnSyntaxHighlight(wxCommandEvent& e)
@@ -5176,7 +5177,7 @@ void clMainFrame::OnSplitSelection(wxCommandEvent& event)
 void clMainFrame::OnSplitSelectionUI(wxUpdateUIEvent& event)
 {
     clEditor* editor = GetMainBook()->GetActiveEditor(true);
-    event.Enable(editor && editor->HasSelection());
+    event.Enable(editor && editor->GetCtrl()->HasSelection());
 }
 
 void clMainFrame::OnProjectRenamed(clCommandEvent& event)
@@ -5202,7 +5203,7 @@ void clMainFrame::OnRunSetupWizard(wxCommandEvent& e)
 void clMainFrame::OnCloseTabsToTheRight(wxCommandEvent& e)
 {
     wxUnusedVar(e);
-    wxWindow* win = GetMainBook()->GetCurrentPage();
+    clSTCEventsHandler* win = GetMainBook()->GetCurrentPage();
     if(win) { GetMainBook()->CallAfter(&MainBook::CloseTabsToTheRight, win); }
 }
 

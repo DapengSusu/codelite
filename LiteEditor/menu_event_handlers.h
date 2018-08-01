@@ -25,13 +25,14 @@
 #ifndef MENU_EVENT_HANDLERS_H
 #define MENU_EVENT_HANDLERS_H
 
-#include "wx/event.h"
 #include "smart_ptr.h"
+#include "wx/event.h"
 #include <wx/xrc/xmlres.h>
 
 /**
  * The interface for menu event handler classes
  */
+class clEditor;
 class MenuEventHandler
 {
 protected:
@@ -43,8 +44,8 @@ public:
     virtual ~MenuEventHandler(){};
 
     // handle an event
-    virtual void ProcessCommandEvent(wxWindow* owner, wxCommandEvent& event) = 0;
-    virtual void ProcessUpdateUIEvent(wxWindow* owner, wxUpdateUIEvent& event) = 0;
+    virtual void ProcessCommandEvent(clEditor* owner, wxCommandEvent& event) = 0;
+    virtual void ProcessUpdateUIEvent(clEditor* owner, wxUpdateUIEvent& event) = 0;
 
     // Setters/Getters
     const int& GetEventId() const { return m_id; }
@@ -68,8 +69,8 @@ public:
     virtual ~EditHandler(){};
 
 public:
-    virtual void ProcessCommandEvent(wxWindow* owner, wxCommandEvent& event);
-    virtual void ProcessUpdateUIEvent(wxWindow* owner, wxUpdateUIEvent& event);
+    virtual void ProcessCommandEvent(clEditor* owner, wxCommandEvent& event);
+    virtual void ProcessUpdateUIEvent(clEditor* owner, wxUpdateUIEvent& event);
 };
 
 //------------------------------------
@@ -83,8 +84,8 @@ public:
     virtual ~BraceMatchHandler(){};
 
 public:
-    virtual void ProcessCommandEvent(wxWindow* owner, wxCommandEvent& event);
-    virtual void ProcessUpdateUIEvent(wxWindow* owner, wxUpdateUIEvent& event);
+    virtual void ProcessCommandEvent(clEditor* owner, wxCommandEvent& event);
+    virtual void ProcessUpdateUIEvent(clEditor* owner, wxUpdateUIEvent& event);
 };
 
 //------------------------------------
@@ -98,8 +99,8 @@ public:
     virtual ~FindReplaceHandler(){};
 
 public:
-    virtual void ProcessCommandEvent(wxWindow* owner, wxCommandEvent& event);
-    virtual void ProcessUpdateUIEvent(wxWindow* owner, wxUpdateUIEvent& event);
+    virtual void ProcessCommandEvent(clEditor* owner, wxCommandEvent& event);
+    virtual void ProcessUpdateUIEvent(clEditor* owner, wxUpdateUIEvent& event);
 };
 
 //------------------------------------
@@ -113,8 +114,8 @@ public:
     virtual ~GotoHandler(){};
 
 public:
-    virtual void ProcessCommandEvent(wxWindow* owner, wxCommandEvent& event);
-    virtual void ProcessUpdateUIEvent(wxWindow* owner, wxUpdateUIEvent& event);
+    virtual void ProcessCommandEvent(clEditor* owner, wxCommandEvent& event);
+    virtual void ProcessUpdateUIEvent(clEditor* owner, wxUpdateUIEvent& event);
 };
 
 //------------------------------------
@@ -128,8 +129,8 @@ public:
     virtual ~BookmarkHandler(){};
 
 public:
-    virtual void ProcessCommandEvent(wxWindow* owner, wxCommandEvent& event);
-    virtual void ProcessUpdateUIEvent(wxWindow* owner, wxUpdateUIEvent& event);
+    virtual void ProcessCommandEvent(clEditor* owner, wxCommandEvent& event);
+    virtual void ProcessUpdateUIEvent(clEditor* owner, wxUpdateUIEvent& event);
 };
 
 //------------------------------------
@@ -143,8 +144,8 @@ public:
     virtual ~GotoDefinitionHandler(){};
 
 public:
-    virtual void ProcessCommandEvent(wxWindow* owner, wxCommandEvent& event);
-    virtual void ProcessUpdateUIEvent(wxWindow* owner, wxUpdateUIEvent& event);
+    virtual void ProcessCommandEvent(clEditor* owner, wxCommandEvent& event);
+    virtual void ProcessUpdateUIEvent(clEditor* owner, wxUpdateUIEvent& event);
 };
 
 //-------------------------------------------------
@@ -158,8 +159,8 @@ public:
     virtual ~WordWrapHandler(){};
 
 public:
-    virtual void ProcessCommandEvent(wxWindow* owner, wxCommandEvent& event);
-    virtual void ProcessUpdateUIEvent(wxWindow* owner, wxUpdateUIEvent& event);
+    virtual void ProcessCommandEvent(clEditor* owner, wxCommandEvent& event);
+    virtual void ProcessUpdateUIEvent(clEditor* owner, wxUpdateUIEvent& event);
 };
 
 //-------------------------------------------------
@@ -173,8 +174,8 @@ public:
     virtual ~FoldHandler(){};
 
 public:
-    virtual void ProcessCommandEvent(wxWindow* owner, wxCommandEvent& event);
-    virtual void ProcessUpdateUIEvent(wxWindow* owner, wxUpdateUIEvent& event);
+    virtual void ProcessCommandEvent(clEditor* owner, wxCommandEvent& event);
+    virtual void ProcessUpdateUIEvent(clEditor* owner, wxUpdateUIEvent& event);
 };
 
 //-------------------------------------------------
@@ -188,8 +189,8 @@ public:
     virtual ~DebuggerMenuHandler(){};
 
 public:
-    virtual void ProcessCommandEvent(wxWindow* owner, wxCommandEvent& event);
-    virtual void ProcessUpdateUIEvent(wxWindow* owner, wxUpdateUIEvent& event);
+    virtual void ProcessCommandEvent(clEditor* owner, wxCommandEvent& event);
+    virtual void ProcessUpdateUIEvent(clEditor* owner, wxUpdateUIEvent& event);
 };
 
 #endif // MENU_EVENT_HANDLERS_H

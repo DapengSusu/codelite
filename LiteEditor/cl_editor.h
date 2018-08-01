@@ -67,6 +67,7 @@
 #define wxSTC_KEYMOD_META wxSTC_SCMOD_META
 #endif
 
+class clSTCBookCtrl;
 class wxRichToolTip;
 class CCBoxTipWindow;
 class IManager;
@@ -114,7 +115,7 @@ wxDECLARE_EVENT(wxCMD_EVENT_ENABLE_WORD_HIGHLIGHT, wxCommandEvent);
  * \author Eran
  *
  */
-class clEditor : public wxStyledTextCtrl, public IEditor
+class clEditor : public IEditor
 {
 private:
     struct SelectionInfo {
@@ -205,7 +206,6 @@ private:
     };
 
 protected:
-    wxFileName m_fileName;
     wxString m_project;
     wxStopWatch m_watch;
     ContextBasePtr m_context;
@@ -270,6 +270,10 @@ public:
 
     IManager* GetManager() { return m_mgr; }
 
+    void BindSTCEvents();
+    void UnbinSTCEvents();
+    clSTCEventsHandler* Clone(clSTCBookCtrl* book);
+
     /**
      * @brief CodeLite preferences updated
      */
@@ -302,7 +306,7 @@ public:
 
 public:
     /// Construct a clEditor object
-    clEditor(wxWindow* parent);
+    clEditor(clSTCBookCtrl* book);
 
     /// Default destructor
     virtual ~clEditor();
@@ -356,9 +360,6 @@ public:
      */
     void ChangeCase(bool toLower);
 
-    // set this editor file name
-    void SetFileName(const wxFileName& name) { m_fileName = name; }
-
     // Return the project name
     const wxString& GetProject() const { return m_project; }
     // Set the project name
@@ -407,9 +408,6 @@ public:
     // try to match a brace from the current caret pos and select the region
     void MatchBraceAndSelect(bool selRegion);
 
-    // Popup a find/replace dialog
-    void DoFindAndReplace(bool isReplaceDlg);
-
     // set this page as active, this usually happened when user changed the notebook
     // page to this one
     virtual void SetActive();
@@ -451,6 +449,59 @@ public:
      */
     void SetEnsureCaretIsVisible(int pos, bool preserveSelection = true, bool forceDelay = false);
 
+    // API for compatibility with wxSTC
+    wxString GetText() const { return GetCtrl()->GetText(); }
+    bool HasSelection() const { return GetCtrl()->HasSelection(); }
+    int GetSelectionNStart(int sel) const { return GetCtrl()->GetSelectionNStart(sel); }
+    int GetSelectionNEnd(int sel) const { return GetCtrl()->GetSelectionNEnd(sel); }
+    bool GetModify() const { return GetCtrl()->GetModify(); }
+    void SetSavePoint() { GetCtrl()->SetSavePoint(); }
+    void SetViewEOL(bool b) { return GetCtrl()->SetViewEOL(b); }
+    void SetViewWhiteSpace(int ws) { return GetCtrl()->SetViewWhiteSpace(ws); }
+    bool IsEditable() const { return GetCtrl()->IsEditable(); }
+    void SetReadOnly(bool ro) { GetCtrl()->SetReadOnly(ro); }
+    void CallTipCancel() { GetCtrl()->CallTipCancel(); }
+    void SetFirstVisibleLine(int l) { GetCtrl()->SetFirstVisibleLine(l); }
+    int GetFirstVisibleLine() const { return GetCtrl()->GetFirstVisibleLine(); }
+    void SetText(const wxString& text) { GetCtrl()->SetText(text); }
+    int PositionFromLine(int line) const { return GetCtrl()->PositionFromLine(line); }
+    int GetLineEndPosition(int line) const { return GetCtrl()->GetLineEndPosition(line); }
+    int LineFromPosition(int pos) const { return GetCtrl()->LineFromPosition(pos); }
+    void SetCurrentPos(int pos) { GetCtrl()->SetCurrentPos(pos); }
+    void SetSelectionStart(int anchor) { GetCtrl()->SetSelectionStart(anchor); }
+    void SetSelectionEnd(int caret) { GetCtrl()->SetSelectionEnd(caret); }
+    void AnnotationClearAll() { GetCtrl()->AnnotationClearAll(); }
+    void AnnotationSetVisible(int visible) { GetCtrl()->AnnotationSetVisible(visible); }
+    void Refresh() { GetCtrl()->Refresh(); }
+    int WordEndPosition(int pos, bool onlyWords) { return GetCtrl()->WordEndPosition(pos, onlyWords); }
+    int WordStartPosition(int pos, bool onlyWords) { return GetCtrl()->WordStartPosition(pos, onlyWords); }
+    int GetLineIndentation(int l) const { return GetCtrl()->GetLineIndentation(l); }
+    int GetIndent() const { return GetCtrl()->GetIndent(); }
+    int GetLineIndentPosition(int l) const { return GetCtrl()->GetLineIndentPosition(l); }
+    void SetLineIndentation(int line, int indent) { return GetCtrl()->SetLineIndentation(line, indent); }
+    int GetCurrentLine() { return GetCtrl()->GetCurrentLine(); }
+    int GetCurrentPos() const { return GetCtrl()->GetCurrentPos(); }
+    wxString GetLine(int line) const { return GetCtrl()->GetLine(line); }
+    void ChooseCaretX() { GetCtrl()->ChooseCaretX(); }
+    int GetFoldLevel(int line) const { return GetCtrl()->GetFoldLevel(line); }
+    int PositionBefore(int pos) { return GetCtrl()->PositionBefore(pos); }
+    int PositionAfter(int pos) { return GetCtrl()->PositionAfter(pos); }
+    int GetStyleAt(int pos) const { return GetCtrl()->GetStyleAt(pos); }
+    wxString GetCurLine(int *linepos = NULL) { return GetCtrl()->GetCurLine(linepos); }
+    void SetSelection(int from, int to) { GetCtrl()->SetSelection(from, to); }
+    void SetWordChars(const wxString& chars) { GetCtrl()->SetWordChars(chars); }
+    wxString GetWordChars() const { return GetCtrl()->GetWordChars(); }
+    void SetKeyWords(int set, const wxString& words) { GetCtrl()->SetKeyWords(set, words); }
+    void SetLexer(int lexerId) { GetCtrl()->SetLexer(lexerId); }
+    int GetLexer() const { return GetCtrl()->GetLexer(); }
+    void DeleteBack() { GetCtrl()->DeleteBack(); }
+    int PositionFromPoint(const wxPoint& pt) const { return GetCtrl()->PositionFromPoint(pt); }
+    wxString GetSelectedText() { return GetCtrl()->GetSelectedText(); }
+    int GetCharAt(int pos) const { return GetCtrl()->GetCharAt(pos); }
+    void EndUndoAction() { GetCtrl()->EndUndoAction(); }
+    void BeginUndoAction() { GetCtrl()->BeginUndoAction(); }
+    void DeleteRange(int from, int len) { GetCtrl()->DeleteRange(from, len); }
+    
     /**
      * Does the necessary things to ensure that the destination line of a GoTo is visible
      * \param position the position to ensure is visible
@@ -791,7 +842,6 @@ public:
      * Implemetation for IEditor interace
      *--------------------------------------------------
      */
-    virtual wxStyledTextCtrl* GetCtrl() { return static_cast<wxStyledTextCtrl*>(this); }
 
     /**
      * @brief set a code completion annotation at the given line. code completion
@@ -801,13 +851,13 @@ public:
      */
     virtual void SetCodeCompletionAnnotation(const wxString& text, int lineno);
 
-    virtual wxString GetEditorText() { return GetText(); }
+    virtual wxString GetEditorText() { return GetCtrl()->GetText(); }
     virtual void SetEditorText(const wxString& text);
     virtual void OpenFile();
+    void LoadFile();
     virtual void ReloadFromDisk(bool keepUndoHistory = false);
     virtual void SetCaretAt(long pos);
-    virtual long GetCurrentPosition() { return GetCurrentPos(); }
-    virtual const wxFileName& GetFileName() const { return m_fileName; }
+    virtual long GetCurrentPosition() { return GetCtrl()->GetCurrentPos(); }
     virtual const wxString& GetProjectName() const { return m_project; }
     /**
      * @brief
@@ -823,17 +873,16 @@ public:
      * @brief
      * @param text
      */
-    virtual void AppendText(const wxString& text) { wxStyledTextCtrl::AppendText(text); }
-    virtual void InsertText(int pos, const wxString& text) { wxStyledTextCtrl::InsertText(pos, text); }
-    virtual int GetLength() { return wxStyledTextCtrl::GetLength(); }
-    virtual bool IsModified() { return wxStyledTextCtrl::GetModify(); }
+    virtual void AppendText(const wxString& text) { GetCtrl()->AppendText(text); }
+    virtual void InsertText(int pos, const wxString& text) { GetCtrl()->InsertText(pos, text); }
+    virtual int GetLength() { return GetCtrl()->GetLength(); }
+    virtual bool IsModified() { return GetCtrl()->GetModify(); }
     virtual bool Save() { return SaveFile(); }
     virtual bool SaveAs(const wxString& defaultName = wxEmptyString, const wxString& savePath = wxEmptyString)
     {
         return SaveFileAs(defaultName, savePath);
     }
-    virtual int GetEOL() { return wxStyledTextCtrl::GetEOLMode(); }
-    virtual int GetCurrentLine();
+    virtual int GetEOL() { return GetCtrl()->GetEOLMode(); }
     virtual void ReplaceSelection(const wxString& text);
     virtual wxString GetSelection();
     virtual int GetSelectionStart();
@@ -1004,7 +1053,6 @@ private:
     void OnCallTipClick(wxStyledTextEvent& event);
     void OnScnPainted(wxStyledTextEvent& event);
     void OnSciUpdateUI(wxStyledTextEvent& event);
-    void OnFindDialog(wxCommandEvent& event);
     void OnContextMenu(wxContextMenuEvent& event);
     void OnKeyDown(wxKeyEvent& event);
     void OnKeyUp(wxKeyEvent& event);

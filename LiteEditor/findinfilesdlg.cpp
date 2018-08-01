@@ -33,11 +33,11 @@
 #include "manager.h"
 #include "replaceinfilespanel.h"
 #include "search_thread.h"
+#include "sessionmanager.h"
 #include "windowattrmanager.h"
 #include <algorithm>
 #include <wx/fontmap.h>
 #include <wx/tokenzr.h>
-#include "sessionmanager.h"
 
 FindInFilesDialog::FindInFilesDialog(wxWindow* parent, const wxString& dataName,
                                      const wxArrayString& additionalSearchPaths)
@@ -49,9 +49,7 @@ FindInFilesDialog::FindInFilesDialog(wxWindow* parent, const wxString& dataName,
     // Store the find-in-files data
     clConfig::Get().ReadItem(&m_data);
     wxString filemask = SessionManager::Get().GetFindInFilesMaskForCurrentWorkspace();
-    if(!filemask.IsEmpty()) {
-        m_data.SetSelectedMask(filemask);
-    }
+    if(!filemask.IsEmpty()) { m_data.SetSelectedMask(filemask); }
     wxArrayString paths = m_data.GetSearchPaths();
 
     wxStringSet_t persistentSearchPaths, d;
@@ -142,10 +140,10 @@ FindInFilesDialog::~FindInFilesDialog()
     searchPathsArr.clear();
     std::for_each(d.begin(), d.end(), [&](const wxString& s) { searchPathsArr.Add(s); });
     m_data.SetSearchPaths(searchPathsArr);
-    
+
     clConfig::Get().WriteItem(&m_data);
     SessionManager::Get().UpdateFindInFilesMaskForCurrentWorkspace(m_data.GetSelectedMask());
-    
+
     // Notify about the dialog dismissal
     clCommandEvent event(wxEVT_CMD_FIND_IN_FILES_DISMISSED, GetId());
     event.SetEventObject(this);
@@ -214,7 +212,7 @@ void FindInFilesDialog::DoSearch()
 {
     SearchData data = DoGetSearchData();
     data.SetOwner(clMainFrame::Get()->GetOutputPane()->GetFindResultsTab());
-    
+
     // check to see if we require to save the files
     DoSaveOpenFiles();
     SearchThreadST::Get()->PerformSearch(data);
@@ -256,7 +254,7 @@ SearchData FindInFilesDialog::DoGetSearchData()
         if((rootDir == wxGetTranslation(SEARCH_IN_WORKSPACE_FOLDER)) && clWorkspaceManager::Get().IsWorkspaceOpened()) {
             // Add the workspace folder
             rootDirs.Add(clWorkspaceManager::Get().GetWorkspace()->GetFileName().GetPath());
-            
+
         } else if((rootDir == wxGetTranslation(SEARCH_IN_WORKSPACE)) || (rootDir == SEARCH_IN_WORKSPACE)) {
             if(!clWorkspaceManager::Get().IsWorkspaceOpened()) { continue; }
             clWorkspaceManager::Get().GetWorkspace()->GetWorkspaceFiles(files);

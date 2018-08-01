@@ -1,14 +1,14 @@
-#include "NotebookNavigationDlg.h"
-#include <list>
 #include "Notebook.h"
-#include <algorithm>
-#include "globals.h"
-#include <wx/app.h>
-#include <wx/dynarray.h>
-#include <map>
-#include <imanager.h>
+#include "NotebookNavigationDlg.h"
 #include "bitmap_loader.h"
 #include "file_logger.h"
+#include "globals.h"
+#include <algorithm>
+#include <imanager.h>
+#include <list>
+#include <map>
+#include <wx/app.h>
+#include <wx/dynarray.h>
 
 struct TabData {
     wxString label;
@@ -48,7 +48,7 @@ NotebookNavigationDlg::NotebookNavigationDlg(wxWindow* parent, clMultiBook* book
     const std::vector<void*>& windows = history->GetHistory();
     // Populate the list
     for(size_t i = 0; i < windows.size(); ++i) {
-        int index = m_book->GetPageIndex(windows[i]);
+        int index = m_book->GetPageIndex(reinterpret_cast<clSTCEventsHandler*>(windows[i]));
         if(index != wxNOT_FOUND) {
             wxString label = m_book->GetPageText(index);
             wxBitmap bmp = m_book->GetPageBitmap(index);
@@ -63,7 +63,7 @@ NotebookNavigationDlg::NotebookNavigationDlg(wxWindow* parent, clMultiBook* book
             wxVariant modifiedItem;
             wxVariant nullBmp;
             unsigned char zeros[] = "\0\0";
-            nullBmp << wxBitmap{wxImage{1, 1, zeros, zeros, true}};
+            nullBmp << wxBitmap{ wxImage{ 1, 1, zeros, zeros, true } };
             std::map<void*, clTab>::iterator iter = tabsInfoMap.find(windows[i]);
             if(iter != tabsInfoMap.end()) {
                 d->isFile = iter->second.isFile;
@@ -94,16 +94,12 @@ NotebookNavigationDlg::NotebookNavigationDlg(wxWindow* parent, clMultiBook* book
                 if(d->isFile) {
                     FileExtManager::FileType type =
                         FileExtManager::GetType(d->filename.GetFullName(), FileExtManager::TypeText);
-                    if(bmps.count(type)) {
-                        d->bmp = bmps.find(type)->second;
-                    }
+                    if(bmps.count(type)) { d->bmp = bmps.find(type)->second; }
                 }
             }
 
 #ifdef __WXOSX__
-            if(iter != tabsInfoMap.end() && iter->second.isModified) {
-                text.Prepend("*");
-            }
+            if(iter != tabsInfoMap.end() && iter->second.isModified) { text.Prepend("*"); }
 #endif
             cols.push_back(::MakeIconText(text, d->bmp));
             m_dvListCtrl->AppendItem(cols, (wxUIntPtr)d);
@@ -118,7 +114,7 @@ NotebookNavigationDlg::NotebookNavigationDlg(wxWindow* parent, clMultiBook* book
 
     m_dvListCtrl->CallAfter(&wxDataViewCtrl::SetFocus);
     m_dvListCtrl->GetColumn(1)->SetWidth(wxCOL_WIDTH_AUTOSIZE);
-    
+
     SetMinClientSize(wxSize(500, 300));
 #ifdef __WXOSX__
     SetSize(wxSize(500, 300));

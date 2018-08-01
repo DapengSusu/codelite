@@ -22,22 +22,21 @@
 //
 //////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////
-#include <wx/xrc/xmlres.h>
-#include "context_base.h"
-#include "drawingutils.h"
-#include <vector>
-#include "editor_config.h"
-#include "cl_editor.h"
-#include "frame.h"
-#include "ctags_manager.h"
 #include "cl_command_event.h"
-#include "event_notifier.h"
-#include "plugin.h"
-#include "macros.h"
+#include "cl_editor.h"
 #include "commentconfigdata.h"
+#include "context_base.h"
+#include "ctags_manager.h"
+#include "drawingutils.h"
 #include "editor_config.h"
-#include <wx/tokenzr.h>
+#include "event_notifier.h"
+#include "frame.h"
+#include "macros.h"
+#include "plugin.h"
+#include <vector>
 #include <wx/regex.h>
+#include <wx/tokenzr.h>
+#include <wx/xrc/xmlres.h>
 
 // static wxColor GetInactiveColor(const wxColor& col)
 //{
@@ -192,9 +191,7 @@ void ContextBase::OnUserTypedXChars(const wxString& word)
     // user typed more than X chars
     // trigger code complete event (as if the user typed ctrl-space)
     // if no one handles this event, fire a word completion event
-    if(IsCommentOrString(GetCtrl().GetCurrentPos())) {
-        return;
-    }
+    if(IsCommentOrString(GetCtrl().GetCurrentPos())) { return; }
 
     const TagsOptionsData& options = TagsManagerST::Get()->GetCtagsOptions();
     if(options.GetFlags() & CC_WORD_ASSIST) {
@@ -243,9 +240,7 @@ void ContextBase::AutoAddComment()
 
     wxString toInsert;
     if(IsAtLineComment()) {
-        if(text.StartsWith(wxT("//"))) {
-            toInsert = wxT("// ");
-        }
+        if(text.StartsWith(wxT("//"))) { toInsert = wxT("// "); }
     } else if(IsAtBlockComment()) {
         // Check the text typed before this char
         int startPos = rCtrl.PositionBefore(curpos);
@@ -323,6 +318,7 @@ bool ContextBase::IsStringTriggerCodeComplete(const wxString& str) const
     } else {
         return (m_completionTriggerStrings.count(str) > 0);
     }
+    return false;
 }
 
 int ContextBase::FindNext(const wxString& what, int& pos, bool wholePage)
@@ -341,9 +337,7 @@ int ContextBase::FindNext(const wxString& what, int& pos, bool wholePage)
     }
     if((pos < startpos) || (pos > endpos)) return wxNOT_FOUND;
     int where = ctrl->FindText(pos, endpos, what);
-    if(where != wxNOT_FOUND) {
-        pos = where + what.length();
-    }
+    if(where != wxNOT_FOUND) { pos = where + what.length(); }
     return where;
 }
 
@@ -363,8 +357,6 @@ int ContextBase::FindPrev(const wxString& what, int& pos, bool wholePage)
     }
     if((pos < startpos) || (pos > endpos)) return wxNOT_FOUND;
     int where = ctrl->FindText(pos, startpos, what);
-    if(where != wxNOT_FOUND) {
-        pos = where;
-    }
+    if(where != wxNOT_FOUND) { pos = where; }
     return where;
 }

@@ -7,27 +7,28 @@
 #include <vector>
 #include <wx/bitmap.h>
 #include <wx/splitter.h>
+#include "clSTCBookCtrl.h"
 
 class WXDLLIMPEXP_SDK clMultiBook : public wxPanel
 {
-    Notebook* m_leftBook;
-    Notebook* m_rightBook;
+    clSTCBookCtrl* m_leftBook;
+    clSTCBookCtrl* m_rightBook;
     wxSplitterWindow* m_splitter;
     size_t m_style;
     int m_selection;
     clTabHistory::Ptr_t m_history;
 
 protected:
-    bool GetActiveBook(Notebook** book, size_t& bookIndex) const;
-    bool GetBookByPageIndex(size_t pageIndex, Notebook** book, size_t& bookIndex, size_t& modPageIndex) const;
-    bool GetActivePageBook(Notebook** book, size_t& bookIndex, size_t& modPageIndex) const;
-    void MovePageToNotebook(Notebook* srcbook, size_t index, Notebook* destbook);
+    bool GetActiveBook(clSTCBookCtrl** book, size_t& bookIndex) const;
+    bool GetBookByPageIndex(size_t pageIndex, clSTCBookCtrl** book, size_t& bookIndex, size_t& modPageIndex) const;
+    bool GetActivePageBook(clSTCBookCtrl** book, size_t& bookIndex, size_t& modPageIndex) const;
+    void MovePageToNotebook(clSTCBookCtrl* srcbook, size_t index, clSTCBookCtrl* destbook);
     void UpdateView();
     int BookIndexToGlobalIndex(size_t bookIndex, size_t pageIndex) const;
-    int BookIndexToGlobalIndex(Notebook* book, size_t pageIndex) const;
+    int BookIndexToGlobalIndex(clSTCBookCtrl* book, size_t pageIndex) const;
     // Notebook* AddNotebook();
-    Notebook* CreateNotebook(wxWindow* parent);
-    bool IsOurNotebook(Notebook* book) const;
+    clSTCBookCtrl* CreateNotebook(wxWindow* parent);
+    bool IsOurNotebook(clSTCBookCtrl* book) const;
 
 protected:
     void OnEventProxy(wxBookCtrlEvent& event);
@@ -66,17 +67,17 @@ public:
     /**
      * @brief append page to the notebook
      */
-    void AddPage(wxWindow* page, const wxString& label, bool selected = false, const wxBitmap& bmp = wxNullBitmap);
+    void AddPage(clSTCEventsHandler* page, const wxString& label, bool selected = false, const wxBitmap& bmp = wxNullBitmap);
 
     /**
      * @brief insert page at a specified position
      */
-    bool InsertPage(size_t index, wxWindow* page, const wxString& label, bool selected = false,
+    bool InsertPage(size_t index, clSTCEventsHandler* page, const wxString& label, bool selected = false,
                     const wxBitmap& bmp = wxNullBitmap);
     /**
      * @brief Returns the string for the given page
      */
-    wxWindow* GetPage(size_t index) const;
+    clSTCEventsHandler* GetPage(size_t index) const;
 
     /**
      * @brief Deletes the specified page and the associated window
@@ -86,7 +87,7 @@ public:
     /**
      * @brief return the currently selected page or null
      */
-    wxWindow* GetCurrentPage() const;
+    clSTCEventsHandler* GetCurrentPage() const;
 
     /**
      * @brief Returns the number of pages in the control
@@ -152,7 +153,7 @@ public:
      * @param window
      * @return return window index, or wxNOT_FOUND
      */
-    int GetPageIndex(void* window) const;
+    int GetPageIndex(clSTCEventsHandler* window) const;
 
     /**
      * @brief return the index of a given window by its title
@@ -173,6 +174,11 @@ public:
      * @brief move the active page and place it in the new nexIndex
      */
     bool MoveActivePage(int newIndex);
+    
+    /**
+     * @brief the main notebook is the one of the left side
+     */
+    clSTCBookCtrl* GetMainBook() { return m_leftBook; }
 };
 
 #endif // CLMULTIBOOK_H

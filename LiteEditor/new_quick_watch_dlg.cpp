@@ -296,7 +296,6 @@ void DisplayVariableDlg::ShowDialog(bool center)
 #ifndef __WXMAC__
         clMainFrame::Get()->Raise();
 #endif
-        editor->SetFocus();
         editor->SetActive();
     }
     m_mousePosTimer->Start(200);

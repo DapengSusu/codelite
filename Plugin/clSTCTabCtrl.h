@@ -11,6 +11,7 @@ public:
     virtual ~clSTCTabCtrl();
     void AllPagesDeleted();
     void NotifyPageChanged(int oldIndex, int newIndex);
+    void PageRemoved(clTabInfo::Ptr_t tab, bool deleteIte);
 };
 
 #endif // CLSTCTABCTRL_H

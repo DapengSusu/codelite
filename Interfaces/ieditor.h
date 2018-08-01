@@ -26,18 +26,18 @@
 #ifndef IEDITOR_H
 #define IEDITOR_H
 
-#include <wx/filename.h>
 #include "browse_record.h"
-#include "wx/string.h"
-#include <wx/colour.h>
-#include "entry.h"
-#include <vector>
+#include "clSTCBookCtrl.h"
+#include "clSTCEventsHandler.h"
 #include "cl_calltip.h"
+#include "entry.h"
+#include "optionsconfig.h"
+#include "wx/string.h"
 #include <list>
 #include <map>
-#include "optionsconfig.h"
-
-class wxStyledTextCtrl;
+#include <vector>
+#include <wx/colour.h>
+#include <wx/filename.h>
 
 class NavMgr;
 class wxClientData;
@@ -58,7 +58,7 @@ enum {
  * @file ieditor.h
  * @brief an interface for the plugin to provide clean access to the editor class
  */
-class IEditor
+class IEditor : public clSTCEventsHandler
 {
 public:
     typedef std::list<IEditor*> List_t;
@@ -68,7 +68,10 @@ protected:
     IEditor::ClientDataMap_t m_data;
 
 public:
-    IEditor() {}
+    IEditor(clSTCBookCtrl* book)
+        : clSTCEventsHandler(book)
+    {
+    }
     virtual ~IEditor()
     {
         IEditor::ClientDataMap_t::iterator iter = m_data.begin();
@@ -96,8 +99,8 @@ public:
     virtual bool IsModified() = 0;
 
     /**
-	 * @brief Get the editor's modification count
-	 */
+     * @brief Get the editor's modification count
+     */
     virtual wxUint64 GetModificationCount() const = 0;
 
     /**
@@ -160,11 +163,6 @@ public:
      * \brief return the current position of the caret
      */
     virtual long GetCurrentPosition() = 0;
-
-    /**
-     * \brief return the current file name
-     */
-    virtual const wxFileName& GetFileName() const = 0;
 
     /**
      * \brief return the project which owns the current file name. return wxEmptyString
@@ -405,11 +403,6 @@ public:
     virtual void CenterLinePreserveSelection(int line) = 0;
 
     /**
-     * @brief return a pointer to the underlying scintilla control
-     */
-    virtual wxStyledTextCtrl* GetCtrl() = 0;
-
-    /**
      * @brief set the focus to the current editor
      */
     virtual void SetActive() = 0;
@@ -476,9 +469,7 @@ public:
     wxClientData* GetClientData(const wxString& key) const
     {
         IEditor::ClientDataMap_t::const_iterator iter = m_data.find(key);
-        if(iter != m_data.end()) {
-            return iter->second;
-        }
+        if(iter != m_data.end()) { return iter->second; }
         return NULL;
     }
 
